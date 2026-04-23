@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.soe-blue { color: #004098; }
+.soe-bg-blue { background-color: #004098; }
+.ai-gradient { background: linear-gradient(135deg, #004098 0%, #00d2ff 100%); }
+.glass-card { 
+  background: rgba(255, 255, 255, 0.95); 
+  border: 1px solid #e1e4e8; 
+  border-radius: 4px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+}
+.ai-pulse { border: 2px solid #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.3); }
+
+
