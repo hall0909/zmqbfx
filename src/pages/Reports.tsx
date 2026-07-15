@@ -11,14 +11,20 @@ interface Report {
 }
 
 const mockReports: Report[] = [
-  { id: '1', title: '2023年第三季度全市专卖执法情报分析报告', type: '季度报', generateTime: '2023-10-01 08:00', status: 'completed' },
-  { id: '2', title: '9月物流寄递环节涉烟违法专项分析报告', type: '专项报', generateTime: '2023-09-30 14:22', status: 'completed' },
-  { id: '3', title: '本周高发区域假烟案件趋势预警简报', type: '周报', generateTime: '2023-10-15 09:10', status: 'completed' },
+  { id: '1', title: '2026年第二季度全市专卖执法情报分析报告', type: '季度报', generateTime: '2026-07-01 08:00', status: 'completed' },
+  { id: '2', title: '6月物流寄递环节涉烟违法专项分析报告', type: '专项报', generateTime: '2026-06-30 14:22', status: 'completed' },
+  { id: '3', title: '本周高发区域假烟案件趋势预警简报', type: '周报', generateTime: '2026-07-12 09:10', status: 'completed' },
 ];
 
 export default function Reports() {
   const [reports, setReports] = useState<Report[]>(mockReports);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{show: boolean, msg: string}>({show: false, msg: ''});
+
+  const showToast = (msg: string) => {
+    setToast({show: true, msg});
+    setTimeout(() => setToast({show: false, msg: ''}), 3000);
+  };
 
   useEffect(() => {
     const handleAction = (e: any) => {
@@ -76,10 +82,10 @@ export default function Reports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
-        <ReportTemplateCard title="标准周报/月报模板" desc="分系统集成：贴合日常汇报指标要求。" />
-        <ReportTemplateCard title="假烟专项打击报告" desc="深度分析：专注售假、存储窝点趋势。" />
-        <ReportTemplateCard title="物流寄递整治报告" desc="智能抓取：快递网点异常包裹稽查总结。" />
-        <ReportTemplateCard title="真烟外流防控报告" desc="异动预警：串码销售与跨区域流通预警。" />
+        <ReportTemplateCard title="标准周报/月报模板" desc="分系统集成：贴合日常汇报指标要求。" onClick={() => showToast('已选中【标准周报/月报模板】')} />
+        <ReportTemplateCard title="假烟专项打击报告" desc="深度分析：专注售假、存储窝点趋势。" onClick={() => showToast('已选中【假烟专项打击报告】模板')} />
+        <ReportTemplateCard title="物流寄递整治报告" desc="智能抓取：快递网点异常包裹稽查总结。" onClick={() => showToast('已选中【物流寄递整治报告】模板')} />
+        <ReportTemplateCard title="真烟外流防控报告" desc="异动预警：串码销售与跨区域流通预警。" onClick={() => showToast('已选中【真烟外流防控报告】模板')} />
       </div>
 
       <div className="glass-card flex-1 flex flex-col overflow-hidden">
@@ -125,12 +131,14 @@ export default function Reports() {
                     <button 
                       disabled={report.status !== 'completed'}
                       className="text-blue-600 hover:underline hover:text-blue-800 font-bold disabled:opacity-30 disabled:hover:no-underline text-[10px]"
+                      onClick={() => showToast(`正在提取并在线预览：${report.title}`)}
                     >
                       在线预览
                     </button>
                     <button 
                       disabled={report.status !== 'completed'}
                       className="text-gray-600 hover:text-gray-800 font-bold items-center justify-end w-full md:w-auto inline-flex disabled:opacity-30 disabled:hover:no-underline text-[10px] px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                      onClick={() => showToast(`正在生成 ${report.title} 的 PDF 文件并加入下载队列...`)}
                     >
                       <Download className="w-3 h-3 mr-1" /> 导出PDF
                     </button>
@@ -141,13 +149,20 @@ export default function Reports() {
           </table>
         </div>
       </div>
+
+      {toast.show && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+          <span className="text-sm font-bold">{toast.msg}</span>
+        </div>
+      )}
     </div>
   );
 }
 
-function ReportTemplateCard({ title, desc }: { title: string, desc: string }) {
+function ReportTemplateCard({ title, desc, onClick }: { title: string, desc: string, onClick?: () => void }) {
   return (
-    <div className="bg-gray-50 border border-gray-200 border-dashed rounded p-3 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors group">
+    <div className="bg-gray-50 border border-gray-200 border-dashed rounded p-3 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors group" onClick={onClick}>
       <div className="flex items-center justify-between mb-1.5">
         <h4 className="font-bold text-xs text-gray-700 group-hover:text-blue-800">{title}</h4>
       </div>

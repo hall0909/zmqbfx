@@ -211,7 +211,7 @@ export default function App() {
           </div>
           <div className="flex flex-col text-right ml-2 text-white">
             <span className="font-bold">管理员 (Admin-001)</span>
-            <span className="opacity-80 text-xs mt-0.5">最后登录: 2024-05-24 09:20</span>
+            <span className="opacity-80 text-xs mt-0.5">最后登录: {new Date().toLocaleString('zh-CN', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-')}</span>
           </div>
           <button className="text-white opacity-80 hover:opacity-100 transition-colors ml-2">
             <LogOut className="w-5 h-5" />

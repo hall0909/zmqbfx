@@ -17,6 +17,12 @@ import 'leaflet/dist/leaflet.css';
 export default function RiskEval() {
   const [activeTab, setActiveTab] = useState<'person' | 'area' | 'retailer' | 'metrics' | 'trend'>('person');
   const [tourAction, setTourAction] = useState<string>('');
+  const [toast, setToast] = useState<{show: boolean, msg: string}>({show: false, msg: ''});
+
+  const showToast = (msg: string) => {
+    setToast({show: true, msg});
+    setTimeout(() => setToast({show: false, msg: ''}), 3000);
+  };
 
   useEffect(() => {
     const handleAction = (e: any) => {
@@ -40,7 +46,7 @@ export default function RiskEval() {
   ];
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full gap-3 relative">
       {/* 模块主导航 */}
       <div className="glass-card p-3 shrink-0 flex items-center justify-between border-b-4 border-[#004098]">
         <div className="flex items-center gap-2">
@@ -65,12 +71,19 @@ export default function RiskEval() {
       </div>
 
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'person' && <PersonAnalysis tourAction={tourAction} />}
-        {activeTab === 'area' && <AreaRiskAnalysis tourAction={tourAction} />}
-        {activeTab === 'retailer' && <RetailerRisk tourAction={tourAction} />}
-        {activeTab === 'metrics' && <MetricsQA tourAction={tourAction} />}
-        {activeTab === 'trend' && <TrendPrediction tourAction={tourAction} />}
+        {activeTab === 'person' && <PersonAnalysis tourAction={tourAction} showToast={showToast} />}
+        {activeTab === 'area' && <AreaRiskAnalysis tourAction={tourAction} showToast={showToast} />}
+        {activeTab === 'retailer' && <RetailerRisk tourAction={tourAction} showToast={showToast} />}
+        {activeTab === 'metrics' && <MetricsQA tourAction={tourAction} showToast={showToast} />}
+        {activeTab === 'trend' && <TrendPrediction tourAction={tourAction} showToast={showToast} />}
       </div>
+
+      {toast.show && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+          <span className="text-sm font-bold">{toast.msg}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -78,7 +91,7 @@ export default function RiskEval() {
 // ----------------------------------------------------
 // 3.2.1 涉案人员维度智能统计分析
 // ----------------------------------------------------
-function PersonAnalysis({ tourAction }: { tourAction?: string }) {
+function PersonAnalysis({ tourAction, showToast }: { tourAction?: string, showToast: (msg: string) => void }) {
   const barData = [{ name: '李某某', freq: 12 }, { name: '张某', freq: 9 }, { name: '王某某', freq: 7 }, { name: '刘某', freq: 5 }];
   const radarData = [
     { subject: '跨区域流动性', A: 120, fullMark: 150 },
@@ -97,16 +110,16 @@ function PersonAnalysis({ tourAction }: { tourAction?: string }) {
           <div><label className="text-[11px] font-bold text-gray-500 mb-1 block">区域筛选</label><select className="w-full border p-1.5 rounded text-xs bg-white"><option>全部辖区</option><option>重点网格</option></select></div>
         </div>
         <div className="flex gap-2">
-           <button className="bg-[#004098] text-white px-4 py-1.5 rounded text-xs font-bold">确认筛选</button>
-           <button className="bg-white border text-gray-600 px-4 py-1.5 rounded text-xs font-bold">重置</button>
-           <button className="bg-green-50 border border-green-200 text-green-700 px-4 py-1.5 rounded text-xs font-bold flex items-center"><Download className="w-3 h-3 mr-1" /> 数据导出</button>
+           <button className="bg-[#004098] text-white px-4 py-1.5 rounded text-xs font-bold" onClick={() => showToast('筛选条件已应用，数据已重新计算')}>确认筛选</button>
+           <button className="bg-white border text-gray-600 px-4 py-1.5 rounded text-xs font-bold" onClick={() => showToast('筛选条件已重置')}>重置</button>
+           <button className="bg-green-50 border border-green-200 text-green-700 px-4 py-1.5 rounded text-xs font-bold flex items-center" onClick={() => showToast('报表生成中，请稍后在下载列表中查看')}><Download className="w-3 h-3 mr-1" /> 数据导出</button>
         </div>
       </div>
 
       {/* 上栏: 图表区 40% */}
       <div className="h-[40%] flex gap-3 shrink-0">
          <div className="flex-1 glass-card p-3 flex flex-col relative">
-           <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-bold text-gray-700">户籍地分布热力图</h3><div className="text-gray-400"><Maximize2 className="w-3.5 h-3.5 cursor-pointer hover:text-[#004098]"/></div></div>
+           <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-bold text-gray-700">户籍地分布热力图</h3><div className="text-gray-400"><Maximize2 className="w-3.5 h-3.5 cursor-pointer hover:text-[#004098]" onClick={() => showToast('全屏地图模式已开启')}/></div></div>
            <div className="flex-1 bg-[#e0e5ec] rounded relative overflow-hidden flex items-center justify-center border border-gray-200">
                <MapIcon className="absolute w-full h-full opacity-10 text-gray-500"/>
                <div className="absolute w-6 h-6 bg-red-500 rounded-full blur-[10px] opacity-80" style={{top:'30%', left:'40%'}}></div>
@@ -129,13 +142,13 @@ function PersonAnalysis({ tourAction }: { tourAction?: string }) {
       <div className="flex-1 glass-card overflow-hidden flex flex-col">
          <div className="p-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
             <div className="flex items-center gap-2">
-               <button className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 text-xs font-bold rounded">加入重点关注</button>
-               <button className="bg-white border px-3 py-1 text-xs text-gray-600 rounded">批量对比</button>
+               <button className="bg-red-50 text-red-600 border border-red-200 px-3 py-1 text-xs font-bold rounded" onClick={() => showToast('已将勾选的人员加入重点关注名单')}>加入重点关注</button>
+               <button className="bg-white border px-3 py-1 text-xs text-gray-600 rounded" onClick={() => showToast('请至少选择两名人员以进行对比分析')}>批量对比</button>
             </div>
             <div className="flex gap-2 items-center">
                <input type="text" placeholder="搜姓名/身份证号..." className="border text-xs px-2 py-1 rounded w-48"/>
                <select className="border text-xs px-2 py-1 rounded"><option>按违规频次倒序</option></select>
-               <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold ml-2 flex items-center transition-colors shadow-sm"><BrainCircuit className="w-3 h-3 mr-1" />趋势预测分析</button>
+               <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold ml-2 flex items-center transition-colors shadow-sm" onClick={() => showToast('正在调用 AI 引擎进行趋势预判...')}><BrainCircuit className="w-3 h-3 mr-1" />趋势预测分析</button>
             </div>
          </div>
          <div className="flex-1 overflow-auto">
@@ -146,8 +159,8 @@ function PersonAnalysis({ tourAction }: { tourAction?: string }) {
              </tr></thead>
              <tbody>
                {[1,2,3,4,5].map(i =>(
-                 <tr key={i} className="border-b hover:bg-blue-50 cursor-pointer">
-                   <td className="p-3 text-center"><input type="checkbox"/></td>
+                 <tr key={i} className="border-b hover:bg-blue-50 cursor-pointer" onClick={() => showToast(`正在加载 [李某某 ${i}] 的详细个人档案...`)}>
+                   <td className="p-3 text-center" onClick={e => e.stopPropagation()}><input type="checkbox"/></td>
                    <td className="p-3 font-bold text-[#004098] hover:underline">李某某 {i}</td>
                    <td className="p-3 font-mono text-gray-500">440304******{i}123</td>
                    <td className="p-3"><div className="font-bold text-red-600">{10-i}次 <span className="bg-red-100 text-red-700 text-[10px] px-1 ml-1 rounded">售假</span></div></td>
@@ -166,9 +179,10 @@ function PersonAnalysis({ tourAction }: { tourAction?: string }) {
 // ----------------------------------------------------
 // 3.2.2 涉案区域活力与风险智能分析
 // ----------------------------------------------------
-function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
+function AreaRiskAnalysis({ tourAction, showToast }: { tourAction?: string, showToast: (msg: string) => void }) {
   const [showDemoPopup, setShowDemoPopup] = useState(false);
   const [highlightDetails, setHighlightDetails] = useState(false);
+  const [activeSideTab, setActiveSideTab] = useState('metrics');
 
   useEffect(() => {
     if (tourAction === 'risk-area') {
@@ -196,9 +210,9 @@ function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
            <div className="flex items-center gap-2"><span className="text-sm font-bold text-gray-700">风险维度:</span><span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">发案率</span><span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">物流异常量</span></div>
          </div>
          <div className="flex gap-2">
-            <button className="bg-white border text-[#004098] px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-50">区域对比</button>
-            <button className="bg-white border text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50"><Settings className="w-3.5 h-3.5 inline mr-1" />等级阈值设置</button>
-            <button className="bg-[#004098] text-white px-4 py-1.5 rounded text-xs font-bold shadow-sm">AI一键重新评估</button>
+            <button className="bg-white border text-[#004098] px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-50" onClick={() => showToast('已进入区域对比模式，请在地图上选择要对比的网格')}>区域对比</button>
+            <button className="bg-white border text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50" onClick={() => showToast('正在打开风险等级阈值配置面板...')}><Settings className="w-3.5 h-3.5 inline mr-1" />等级阈值设置</button>
+            <button className="bg-[#004098] text-white px-4 py-1.5 rounded text-xs font-bold shadow-sm" onClick={() => showToast('AI大模型已启动全域风险重估，请稍候...')}>AI一键重新评估</button>
          </div>
       </div>
 
@@ -215,8 +229,8 @@ function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
               </div>
             )}
             <div className="absolute top-4 right-4 z-30 flex gap-2">
-              <button className="bg-white p-2 shadow rounded hover:text-blue-600"><MapIcon className="w-4 h-4"/></button>
-              <button className="bg-white p-2 shadow rounded hover:text-blue-600"><Maximize2 className="w-4 h-4"/></button>
+              <button className="bg-white p-2 shadow rounded hover:text-blue-600" onClick={() => showToast('地图视角已重置')}><MapIcon className="w-4 h-4"/></button>
+              <button className="bg-white p-2 shadow rounded hover:text-blue-600" onClick={() => showToast('全屏地图模式已开启')}><Maximize2 className="w-4 h-4"/></button>
             </div>
             
             {/* 真实地图背景 - 采用 Leaflet */}
@@ -284,7 +298,7 @@ function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
                <h3 className="font-bold text-[#004098] flex items-center mb-3"><Flame className="w-4 h-4 mr-1.5" /> 智能评估区域排行榜 (TOP 3)</h3>
                <div className="space-y-2">
                  {[ {n:'江汉区核心商圈',s:92,c:'red'}, {n:'东西湖物流片区',s:75,c:'orange'}, {n:'武昌火车站网格',s:68,c:'orange'} ].map((a,i) => (
-                   <div key={i} className="flex justify-between items-center text-xs p-1.5 border border-gray-100 rounded bg-white">
+                   <div key={i} className="flex justify-between items-center text-xs p-1.5 border border-gray-100 rounded bg-white hover:border-[#004098] cursor-pointer" onClick={() => showToast(`已将视角聚焦至: ${a.n}`)}>
                       <div className="flex items-center"><span className={cn("w-4 h-4 rounded text-[10px] text-white flex items-center justify-center font-bold mr-2", i===0?'bg-red-500':i===1?'bg-orange-500':'bg-yellow-500')}>{i+1}</span> <span className="font-bold text-gray-700">{a.n}</span></div>
                       <span className={cn("font-bold font-mono", a.c==='red'?'text-red-600':'text-orange-600')}>{a.s}分</span>
                    </div>
@@ -293,33 +307,62 @@ function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
             </div>
             
             <div className="flex border-b border-gray-200 text-xs font-bold text-gray-500 shrink-0">
-              <button className="flex-1 py-2.5 border-b-2 border-[#004098] text-[#004098] bg-blue-50/50">核心指标</button>
-              <button className="flex-1 py-2.5 border-b-2 border-transparent hover:bg-gray-50">风险分析</button>
-              <button className="flex-1 py-2.5 border-b-2 border-transparent hover:bg-gray-50">AI监管建议</button>
+              <button onClick={() => setActiveSideTab('metrics')} className={cn("flex-1 py-2.5 border-b-2 transition-colors", activeSideTab === 'metrics' ? "border-[#004098] text-[#004098] bg-blue-50/50" : "border-transparent hover:bg-gray-50")}>核心指标</button>
+              <button onClick={() => setActiveSideTab('analysis')} className={cn("flex-1 py-2.5 border-b-2 transition-colors", activeSideTab === 'analysis' ? "border-[#004098] text-[#004098] bg-blue-50/50" : "border-transparent hover:bg-gray-50")}>风险分析</button>
+              <button onClick={() => setActiveSideTab('advice')} className={cn("flex-1 py-2.5 border-b-2 transition-colors", activeSideTab === 'advice' ? "border-[#004098] text-[#004098] bg-blue-50/50" : "border-transparent hover:bg-gray-50")}>AI监管建议</button>
             </div>
             
             <div className="p-4 flex-1 overflow-auto bg-blue-50/30">
                <div className="bg-red-100 border border-red-200 p-2 rounded text-center text-red-800 text-xs font-bold mb-4 shadow-sm">当前聚焦: 江汉区核心商圈 (高风险)</div>
                
-               <div className="space-y-4">
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">区域发案率</span><span className="text-red-600">8.5% (预警)</span></div>
-                    <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-red-500 h-1.5 rounded-full" style={{width:'85%'}}></div></div>
+               {activeSideTab === 'metrics' && (
+                 <div className="space-y-4 animate-in fade-in duration-200">
+                   <div>
+                      <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">区域发案率</span><span className="text-red-600">8.5% (预警)</span></div>
+                      <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-red-500 h-1.5 rounded-full" style={{width:'85%'}}></div></div>
+                   </div>
+                   <div>
+                      <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">违规零售户占比</span><span className="text-orange-600">12%</span></div>
+                      <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-orange-500 h-1.5 rounded-full" style={{width:'40%'}}></div></div>
+                   </div>
+                   <div>
+                      <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">物流异常件数</span><span className="text-red-600">3,420单/月</span></div>
+                      <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-red-500 h-1.5 rounded-full" style={{width:'90%'}}></div></div>
+                   </div>
+                   
+                   <div className="mt-6 pt-4 border-t border-gray-200 relative">
+                     <h4 className="text-xs font-bold text-gray-800 mb-2 flex items-center"><BrainCircuit className="w-4 h-4 mr-1 text-[#004098]"/> 风险点深度剖析</h4>
+                     <p className="text-xs text-gray-600 leading-relaxed bg-white p-3 border border-gray-200 rounded shadow-sm">该区域为老牌商圈集散地，近期物流发件量中“电子烟、无标包裹”特征显著增加。周边城中村提供隐蔽仓储环境，疑似存在大型跨区域卷烟集散网络节点。</p>
+                   </div>
                  </div>
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">违规零售户占比</span><span className="text-orange-600">12%</span></div>
-                    <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-orange-500 h-1.5 rounded-full" style={{width:'40%'}}></div></div>
+               )}
+
+               {activeSideTab === 'analysis' && (
+                 <div className="space-y-3 animate-in fade-in duration-200">
+                   <div className="bg-white p-3 rounded shadow-sm border border-gray-200">
+                     <div className="font-bold text-gray-800 text-xs mb-1 text-red-600">聚集效应明显</div>
+                     <div className="text-xs text-gray-600 leading-relaxed">近期查获的案件中，有 65% 的涉案货源均指向该区域的物流中转站。</div>
+                   </div>
+                   <div className="bg-white p-3 rounded shadow-sm border border-gray-200">
+                     <div className="font-bold text-gray-800 text-xs mb-1 text-orange-600">团伙化运作迹象</div>
+                     <div className="text-xs text-gray-600 leading-relaxed">通过对该区域落网人员的关系图谱分析，发现存在多个紧密联系的家族式犯罪团伙。</div>
+                   </div>
                  </div>
-                 <div>
-                    <div className="flex justify-between text-xs mb-1 font-bold"><span className="text-gray-600">物流异常件数</span><span className="text-red-600">3,420单/月</span></div>
-                    <div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-red-500 h-1.5 rounded-full" style={{width:'90%'}}></div></div>
+               )}
+
+               {activeSideTab === 'advice' && (
+                 <div className="space-y-3 animate-in fade-in duration-200">
+                   <div className="bg-[#004098] text-white p-3 rounded shadow-sm">
+                     <div className="font-bold text-xs mb-1 flex items-center"><Target className="w-3.5 h-3.5 mr-1"/> 加强末端物流管控</div>
+                     <div className="text-[11px] text-blue-100 leading-relaxed">建议联合邮政管理局，对该区域内的高危物流寄递网点进行突击抽查，重点排查无头包裹和异常大宗物流。</div>
+                   </div>
+                   <div className="bg-white p-3 rounded shadow-sm border border-purple-200">
+                     <div className="font-bold text-gray-800 text-xs mb-1 flex items-center text-purple-700"><Users className="w-3.5 h-3.5 mr-1"/> 开展联合执法行动</div>
+                     <div className="text-xs text-gray-600 leading-relaxed">协调公安、市监等部门，针对城中村隐蔽仓储开展地毯式摸排，斩断仓储-分销链条。</div>
+                   </div>
+                   <button className="w-full bg-blue-50 text-blue-700 border border-blue-200 py-2 rounded text-xs font-bold hover:bg-blue-100" onClick={() => showToast('已自动生成《江汉区核心商圈联合执法行动方案》草案')}>生成执法方案草案</button>
                  </div>
-                 
-                 <div className="mt-6 pt-4 border-t border-gray-200 relative">
-                   <h4 className="text-xs font-bold text-gray-800 mb-2 flex items-center"><BrainCircuit className="w-4 h-4 mr-1 text-[#004098]"/> 风险点深度剖析</h4>
-                   <p className="text-xs text-gray-600 leading-relaxed bg-white p-3 border border-gray-200 rounded shadow-sm">该区域为老牌商圈集散地，近期物流发件量中“电子烟、无标包裹”特征显著增加。周边城中村提供隐蔽仓储环境，疑似存在大型跨区域卷烟集散网络节点。</p>
-                 </div>
-               </div>
+               )}
             </div>
          </div>
       </div>
@@ -332,7 +375,7 @@ function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
 // ----------------------------------------------------
 // 3.2.3 零售户市场风险智能评估
 // ----------------------------------------------------
-function RetailerRisk({ tourAction }: { tourAction?: string }) {
+function RetailerRisk({ tourAction, showToast }: { tourAction?: string, showToast: (msg: string) => void }) {
   const pieData = [{ name: '合规经营 (低)', value: 890 }, { name: '日常关注 (中)', value: 89 }, { name: '严重预警 (高)', value: 21 }];
   const COLORS = ['#22c55e', '#f97316', '#ef4444'];
 
@@ -342,9 +385,9 @@ function RetailerRisk({ tourAction }: { tourAction?: string }) {
          <div className="flex gap-4 items-center flex-1">
            <input type="text" placeholder="零售户名称/许可证号..." className="border border-gray-300 px-3 py-1.5 rounded text-sm w-64"/>
            <select className="border border-gray-300 px-3 py-1.5 rounded text-sm bg-white"><option>全部风险状态</option><option>高风险预警</option></select>
-           <button className="bg-[#004098] text-white px-6 py-1.5 rounded text-sm font-bold shadow-sm">智能筛选</button>
+           <button className="bg-[#004098] text-white px-6 py-1.5 rounded text-sm font-bold shadow-sm" onClick={() => showToast('已根据条件重新过滤零售户数据')}>智能筛选</button>
          </div>
-         <button className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-1.5 rounded text-sm font-bold flex items-center hover:bg-purple-100"><TrendingUp className="w-4 h-4 mr-1.5"/> AI 风险趋势预测 (3个月)</button>
+         <button className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-1.5 rounded text-sm font-bold flex items-center hover:bg-purple-100" onClick={() => showToast('正在调用 AI 引擎生成未来3个月市场风险趋势报告...')}><TrendingUp className="w-4 h-4 mr-1.5"/> AI 风险趋势预测 (3个月)</button>
       </div>
 
       <div className="flex-1 flex gap-3 overflow-hidden">
@@ -386,7 +429,7 @@ function RetailerRisk({ tourAction }: { tourAction?: string }) {
                       <td className="p-3"><div className={cn("text-xl font-bold font-mono", r.c==='red'?'text-red-600':r.c==='orange'?'text-orange-600':'text-green-600')}>{r.score}</div></td>
                       <td className="p-3 flex gap-1 items-center h-full pt-4">{r.tags.map(t=><span key={t} className="bg-gray-100 border border-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded">{t}</span>)}</td>
                       <td className="p-3"><div className={cn("px-2 py-1 rounded text-xs font-bold inline-block border", r.c==='red'?'bg-red-50 text-red-600 border-red-200':r.c==='orange'?'bg-orange-50 text-orange-600 border-orange-200':'bg-gray-50 text-gray-400 border-gray-200')}>{r.alert}预警</div></td>
-                      <td className="p-3 text-right"><button className="text-[#004098] font-bold text-xs hover:underline bg-white border border-[#004098] px-3 py-1 rounded">详情及建档</button></td>
+                      <td className="p-3 text-right"><button className="text-[#004098] font-bold text-xs hover:underline bg-white border border-[#004098] px-3 py-1 rounded" onClick={() => showToast(`正在提取 [${r.name}] 的全景数字档案...`)}>详情及建档</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -410,8 +453,8 @@ function RetailerRisk({ tourAction }: { tourAction?: string }) {
                     <div className="font-bold text-sm text-gray-800 mb-1">系统预警：异常销量激增</div>
                     <div className="text-xs text-gray-600 mb-3 line-clamp-2">“老王茶酒超市” 近3日中华烟销量超历史均值400%，且物流终端数据显示多批异地包裹集中入库。</div>
                     <div className="flex gap-2">
-                       <button className="flex-1 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] py-1 rounded font-bold hover:bg-blue-100">派发核查工单</button>
-                       <button className="flex-1 bg-gray-50 text-gray-500 border border-gray-200 text-[10px] py-1 rounded hover:bg-gray-100">标记已阅</button>
+                       <button className="flex-1 bg-blue-50 text-blue-700 border border-blue-200 text-[10px] py-1 rounded font-bold hover:bg-blue-100" onClick={() => showToast('稽查工单已实时派发至辖区一线执法人员移动终端')}>派发核查工单</button>
+                       <button className="flex-1 bg-gray-50 text-gray-500 border border-gray-200 text-[10px] py-1 rounded hover:bg-gray-100" onClick={() => showToast('预警信息已标记为已阅')}>标记已阅</button>
                     </div>
                  </div>
               ))}
@@ -425,7 +468,8 @@ function RetailerRisk({ tourAction }: { tourAction?: string }) {
 // ----------------------------------------------------
 // 3.2.4 涉烟指标智能解析与自然语言问答
 // ----------------------------------------------------
-function MetricsQA({ tourAction }: { tourAction?: string }) {
+function MetricsQA({ tourAction, showToast }: { tourAction?: string, showToast: (msg: string) => void }) {
+  const [inputValue, setInputValue] = useState('');
   const [qaHistory, setQaHistory] = useState([
      { q: '上个月江汉区无证运输案件占比多少？', a: '经过模型检索底层数据：上月江汉区共发生无证运输案件45起，占全区涉烟案件总数（120起）的 37.5%。', type: 'text' },
      { q: '画出该区各类案件的分布图', a: '', type: 'chart' }
@@ -436,7 +480,7 @@ function MetricsQA({ tourAction }: { tourAction?: string }) {
        {/* 左侧指标库 30% */}
        <div className="w-[30%] glass-card flex flex-col overflow-hidden bg-white">
           <div className="p-3 bg-gray-50 border-b border-gray-200 font-bold text-[#004098] flex justify-between items-center text-sm">
-             核心业务指标词典 <button className="bg-white border text-xs px-2 py-0.5 rounded text-gray-600">+ 自定义</button>
+             核心业务指标词典 <button className="bg-white border text-xs px-2 py-0.5 rounded text-gray-600" onClick={() => showToast('自定义指标建模向导已打开')}>+ 自定义</button>
           </div>
           <div className="flex-1 overflow-auto p-3 space-y-4">
              <div>
@@ -485,10 +529,16 @@ function MetricsQA({ tourAction }: { tourAction?: string }) {
              </div>
              
              <div className="p-3 bg-white border-t border-gray-200 shrink-0">
-                <div className="flex gap-2 relative">
-                   <input type="text" placeholder="使用自然语言提问（支持上下文追问，如：“生成该数据的趋势图”）..." className="w-full bg-gray-50 border border-gray-300 rounded-full px-5 py-2.5 text-sm focus:border-[#004098] focus:ring-1 focus:ring-[#004098] outline-none" />
-                   <button className="absolute right-1 top-1 bottom-1 bg-[#004098] text-white px-4 rounded-full font-bold hover:bg-blue-900 transition-colors shadow-sm"><Send className="w-4 h-4" /></button>
-                </div>
+                <form className="flex gap-2 relative" onSubmit={(e) => {
+                  e.preventDefault();
+                  if(!inputValue.trim()) return;
+                  setQaHistory([...qaHistory, {q: inputValue, a: '正在通过大模型与知识图谱融合计算，请稍候...', type: 'text'}]);
+                  setInputValue('');
+                  showToast('AI 正在分析您的提问...');
+                }}>
+                   <input type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="使用自然语言提问（支持上下文追问，如：“生成该数据的趋势图”）..." className="w-full bg-gray-50 border border-gray-300 rounded-full px-5 py-2.5 text-sm focus:border-[#004098] focus:ring-1 focus:ring-[#004098] outline-none" />
+                   <button type="submit" className="absolute right-1 top-1 bottom-1 bg-[#004098] text-white px-4 rounded-full font-bold hover:bg-blue-900 transition-colors shadow-sm"><Send className="w-4 h-4" /></button>
+                </form>
              </div>
           </div>
 
@@ -496,7 +546,7 @@ function MetricsQA({ tourAction }: { tourAction?: string }) {
           <div className="flex-1 glass-card flex flex-col overflow-hidden bg-white p-4">
              <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
                <h3 className="font-bold text-[#004098] text-lg flex items-center"><FileText className="w-5 h-5 mr-2" /> 案件办结率 - 智能深度解析报告</h3>
-               <button className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded text-xs font-bold border border-blue-200 hover:bg-blue-100 flex items-center"><Download className="w-3.5 h-3.5 mr-1" /> 导出Word</button>
+               <button className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded text-xs font-bold border border-blue-200 hover:bg-blue-100 flex items-center" onClick={() => showToast('深度解析报告正在导出为 Word 格式...')}><Download className="w-3.5 h-3.5 mr-1" /> 导出Word</button>
              </div>
              
              <div className="flex gap-4 flex-1">
@@ -507,7 +557,7 @@ function MetricsQA({ tourAction }: { tourAction?: string }) {
                  </div>
                  <div className="bg-gray-50 p-3 rounded border border-gray-200 text-xs flex-1 flex flex-col">
                    <div className="font-bold text-gray-800 mb-2">近6个月趋势演变大盘</div>
-                   <div className="flex-1"><ResponsiveContainer width="100%" height="100%"><LineChart data={[{name:'1月',rate:60},{name:'2月',rate:65},{name:'3月',rate:72},{name:'4月',rate:85}]}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="name" tick={{fontSize:10}}/><YAxis tick={{fontSize:10}}/><Tooltip/><Line type="monotone" dataKey="rate" stroke="#004098" strokeWidth={3} dot={{r:4, fill:'#004098'}}/></LineChart></ResponsiveContainer></div>
+                   <div className="flex-1"><ResponsiveContainer width="100%" height="100%"><LineChart data={[{name:'3月',rate:60},{name:'4月',rate:65},{name:'5月',rate:72},{name:'6月',rate:85}]}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="name" tick={{fontSize:10}}/><YAxis tick={{fontSize:10}}/><Tooltip/><Line type="monotone" dataKey="rate" stroke="#004098" strokeWidth={3} dot={{r:4, fill:'#004098'}}/></LineChart></ResponsiveContainer></div>
                  </div>
                </div>
                
@@ -532,13 +582,14 @@ function MetricsQA({ tourAction }: { tourAction?: string }) {
 // ----------------------------------------------------
 // 3.2.5 涉烟违法趋势智能预测
 // ----------------------------------------------------
-function TrendPrediction({ tourAction }: { tourAction?: string }) {
+function TrendPrediction({ tourAction, showToast }: { tourAction?: string, showToast: (msg: string) => void }) {
+  const [activeTab, setActiveTab] = useState('conclusion');
   const lineData = [
-    { month: '4月', 无证运输: 120, 假烟: 80, 走私: 30 },
-    { month: '6月', 无证运输: 140, 假烟: 75, 走私: 35 },
-    { month: '8月', 无证运输: 180, 假烟: 60, 走私: 50 },
-    { month: '10月', 无证运输: 210, 假烟: 55, 走私: 80 },
-    { month: '12月', 无证运输: 250, 假烟: 40, 走私: 110 }
+    { month: '7月', 无证运输: 120, 假烟: 80, 走私: 30 },
+    { month: '9月', 无证运输: 140, 假烟: 75, 走私: 35 },
+    { month: '11月', 无证运输: 180, 假烟: 60, 走私: 50 },
+    { month: '次年1月', 无证运输: 210, 假烟: 55, 走私: 80 },
+    { month: '次年3月', 无证运输: 250, 假烟: 40, 走私: 110 }
   ];
 
   return (
@@ -550,7 +601,7 @@ function TrendPrediction({ tourAction }: { tourAction?: string }) {
           <div><label className="text-[11px] font-bold text-gray-600 mb-1 block">引入宏观影响因子调整</label><select className="w-full border p-2 rounded text-sm bg-white"><option>引入: 节假日周期规律 / 专项行动政策</option></select></div>
         </div>
         <div className="flex gap-2">
-           <button className="bg-purple-700 text-white px-6 py-2 rounded text-sm font-bold shadow-md hover:bg-purple-800 flex items-center"><BrainCircuit className="w-4 h-4 mr-2"/> 重新生成预测推演</button>
+           <button className="bg-purple-700 text-white px-6 py-2 rounded text-sm font-bold shadow-md hover:bg-purple-800 flex items-center" onClick={() => showToast('AI 大模型正在重新加载因子并推演趋势...')}><BrainCircuit className="w-4 h-4 mr-2"/> 重新生成预测推演</button>
         </div>
       </div>
 
@@ -588,40 +639,74 @@ function TrendPrediction({ tourAction }: { tourAction?: string }) {
         <div className="flex-[4.5] glass-card flex flex-col overflow-hidden border border-purple-200 bg-white">
            <div className="bg-purple-700 text-white p-4 shrink-0 flex justify-between items-center shadow-md">
              <h3 className="font-bold text-sm tracking-wide flex items-center"><Target className="w-5 h-5 mr-2 text-purple-200"/> AI 战略战术输出评估报告</h3>
-             <button className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded text-xs font-bold transition-colors">导出PDF简报</button>
+             <button className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded text-xs font-bold transition-colors" onClick={() => showToast('战略战术评估报告已送入 PDF 打印机队列')}>导出PDF简报</button>
            </div>
            
            <div className="flex bg-gray-50 border-b border-gray-200 text-sm font-bold text-gray-500 shrink-0">
-             <button className="flex-1 py-3 border-b-2 border-purple-700 text-purple-800 bg-purple-50">预测结论定调</button>
-             <button className="flex-1 py-3 border-b-2 border-transparent">网格打击方向规划</button>
-             <button className="flex-1 py-3 border-b-2 border-transparent">执法资源配给推演</button>
+             <button onClick={() => setActiveTab('conclusion')} className={cn("flex-1 py-3 border-b-2 transition-colors", activeTab === 'conclusion' ? "border-purple-700 text-purple-800 bg-purple-50" : "border-transparent hover:bg-gray-100")}>预测结论定调</button>
+             <button onClick={() => setActiveTab('planning')} className={cn("flex-1 py-3 border-b-2 transition-colors", activeTab === 'planning' ? "border-purple-700 text-purple-800 bg-purple-50" : "border-transparent hover:bg-gray-100")}>网格打击方向规划</button>
+             <button onClick={() => setActiveTab('resource')} className={cn("flex-1 py-3 border-b-2 transition-colors", activeTab === 'resource' ? "border-purple-700 text-purple-800 bg-purple-50" : "border-transparent hover:bg-gray-100")}>执法资源配给推演</button>
            </div>
 
            <div className="flex-1 p-5 overflow-auto bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
               <div className="absolute inset-0 bg-white/90"></div>
               
-              <div className="relative z-10 space-y-5">
-                <div className="border-l-4 border-red-500 pl-3">
-                  <h4 className="text-sm font-bold text-gray-800 mb-1">大盘核心走向预测</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed text-justify">结合历年案件高峰模型与宏观政策因素，模型推演得出：未来 **12 个月内**，传统低端假烟案发量将出现 **15% 以上的阶梯式下降**。与之相对照，通过沿海城市陆路辐射内陆的“品牌走私”“大规模无证跨城运输”将会在下半年（尤其8月至年末）迎来极具破坏力的高峰期。</p>
-                </div>
+              {activeTab === 'conclusion' && (
+                <div className="relative z-10 space-y-5 animate-in fade-in duration-300">
+                  <div className="border-l-4 border-red-500 pl-3">
+                    <h4 className="text-sm font-bold text-gray-800 mb-1">大盘核心走向预测</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed text-justify">结合历年案件高峰模型与宏观政策因素，模型推演得出：未来 **12 个月内**，传统低端假烟案发量将出现 **15% 以上的阶梯式下降**。与之相对照，通过沿海城市陆路辐射内陆的“品牌走私”“大规模无证跨城运输”将会在下半年（尤其8月至年末）迎来极具破坏力的高峰期。</p>
+                  </div>
 
-                <div className="border-l-4 border-orange-500 pl-3 bg-orange-50/50 p-3 rounded-r-lg border border-l-0 border-orange-100">
-                  <h4 className="text-sm font-bold text-gray-800 mb-2">区域阵地沦陷高危预警</h4>
-                  <ul className="text-sm text-gray-700 space-y-2 font-mono">
-                    <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span> 临海保税物流园区辐射带</li>
-                    <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span> 国道干线交汇区域的隐藏仓</li>
-                  </ul>
-                </div>
+                  <div className="border-l-4 border-orange-500 pl-3 bg-orange-50/50 p-3 rounded-r-lg border border-l-0 border-orange-100">
+                    <h4 className="text-sm font-bold text-gray-800 mb-2">区域阵地沦陷高危预警</h4>
+                    <ul className="text-sm text-gray-700 space-y-2 font-mono">
+                      <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span> 临海保税物流园区辐射带</li>
+                      <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span> 国道干线交汇区域的隐藏仓</li>
+                    </ul>
+                  </div>
 
-                <div className="border border-purple-200 rounded-lg p-4 bg-gradient-to-br from-purple-50 to-white shadow-sm mt-4">
-                  <h4 className="font-bold text-purple-800 text-sm mb-3 flex items-center"><Layers className="w-4 h-4 mr-2"/> 第1与第2战局阶段核心战略建议</h4>
-                  <div className="text-xs text-gray-700 space-y-3 leading-relaxed">
-                    <p><span className="bg-purple-100 text-purple-800 px-2 rounded font-bold mr-1">前3个月</span> 针对传统假烟残余市场开展最后清扫，重点检查城乡接合部零售终端。</p>
-                    <p><span className="bg-purple-100 text-purple-800 px-2 rounded font-bold mr-1">第4-6个月</span> 必须完成监管重心转移，战略预备队应向高速交通枢纽、大型物流骨干分拨中心倾斜，建立 24 小时货车识别预警岗。</p>
+                  <div className="border border-purple-200 rounded-lg p-4 bg-gradient-to-br from-purple-50 to-white shadow-sm mt-4">
+                    <h4 className="font-bold text-purple-800 text-sm mb-3 flex items-center"><Layers className="w-4 h-4 mr-2"/> 第1与第2战局阶段核心战略建议</h4>
+                    <div className="text-xs text-gray-700 space-y-3 leading-relaxed">
+                      <p><span className="bg-purple-100 text-purple-800 px-2 rounded font-bold mr-1">前3个月</span> 针对传统假烟残余市场开展最后清扫，重点检查城乡接合部零售终端。</p>
+                      <p><span className="bg-purple-100 text-purple-800 px-2 rounded font-bold mr-1">第4-6个月</span> 必须完成监管重心转移，战略预备队应向高速交通枢纽、大型物流骨干分拨中心倾斜，建立 24 小时货车识别预警岗。</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {activeTab === 'planning' && (
+                <div className="relative z-10 space-y-4 animate-in fade-in duration-300">
+                  <div className="bg-white p-4 rounded shadow-sm border border-gray-200">
+                     <h4 className="font-bold text-[#004098] mb-2">重点网格布防图谱</h4>
+                     <p className="text-xs text-gray-600 leading-relaxed mb-3">AI 建议将武汉市划分为三大核心防区，实施梯次拦截战术：</p>
+                     <ul className="text-xs text-gray-700 space-y-2">
+                       <li className="flex items-start"><span className="text-red-500 mr-2 mt-0.5">●</span> <div><span className="font-bold">外围卡口 (环城高速收费站):</span> 重点堵截大型货运车辆，布设 24 小时监控。</div></li>
+                       <li className="flex items-start"><span className="text-orange-500 mr-2 mt-0.5">●</span> <div><span className="font-bold">中层集散 (东西湖区物流园):</span> 针对中转仓库进行“白名单”管理，突击检查无证仓。</div></li>
+                       <li className="flex items-start"><span className="text-blue-500 mr-2 mt-0.5">●</span> <div><span className="font-bold">内层末端 (江汉区老商圈):</span> 针对零售户群的“少量多次”蚂蚁搬家式供货进行大数据盯防。</div></li>
+                     </ul>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'resource' && (
+                <div className="relative z-10 space-y-4 animate-in fade-in duration-300">
+                  <div className="bg-gradient-to-br from-green-50 to-white p-4 rounded shadow-sm border border-green-200">
+                     <h4 className="font-bold text-green-800 mb-2">AI 警力与装备调配建议</h4>
+                     <div className="grid grid-cols-2 gap-4 mt-3">
+                       <div className="bg-white p-3 rounded shadow-sm">
+                         <div className="text-xs font-bold text-gray-500 mb-1">机动稽查大队排班</div>
+                         <div className="text-lg font-bold text-gray-800">+30% <span className="text-xs font-normal text-gray-500">向夜间(00:00-04:00)倾斜</span></div>
+                       </div>
+                       <div className="bg-white p-3 rounded shadow-sm">
+                         <div className="text-xs font-bold text-gray-500 mb-1">无人机空中巡查频次</div>
+                         <div className="text-lg font-bold text-gray-800">每周 3 次 <span className="text-xs font-normal text-gray-500">覆盖城乡结合部</span></div>
+                       </div>
+                     </div>
+                  </div>
+                </div>
+              )}
            </div>
         </div>
       </div>

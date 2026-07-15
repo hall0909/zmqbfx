@@ -59,9 +59,15 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<any>(null);
   const [activeNode, setActiveNode] = useState<any>(null);
+  const [toast, setToast] = useState<{show: boolean, msg: string}>({show: false, msg: ''});
+
+  const showToast = (msg: string) => {
+    setToast({show: true, msg});
+    setTimeout(() => setToast({show: false, msg: ''}), 3000);
+  };
 
   const nodeDetails = {
-    case1: { title: '假烟案 (AJ-20231011)', type: '案件', desc: '涉案金额20万元，在白云区某仓库查获假冒伪劣卷烟共计1200条。目前已立案并逮捕3名主要嫌疑人。', date: '2023-10-11' },
+    case1: { title: '假烟案 (AJ-20261011)', type: '案件', desc: '涉案金额20万元，在白云区某仓库查获假冒伪劣卷烟共计1200条。目前已立案并逮捕3名主要嫌疑人。', date: '2026-10-11' },
     person1: { title: '张三', type: '同案人员', desc: '骨干人员，负责跨省运输。曾有2次非法经营前科。', id: '4401*****123' },
     person2: { title: '王麻子', type: '同案人员', desc: '分销下线，负责将假烟销往多家便利店。', id: '4401*****456' },
     vehicle: { title: '粤A·88***', type: '涉案车辆', desc: '长期活跃于物流园，用于跨市运输。轨迹高频出现于凌晨。', owner: '李四老婆' }
@@ -113,7 +119,7 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
              <button type="submit" className="bg-[#004098] hover:bg-blue-900 text-white px-6 py-2 rounded text-sm font-bold flex items-center transition-colors">
                <Search className="w-4 h-4 mr-1.5" /> 智能检索
              </button>
-             <button type="button" className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded text-sm font-bold transition-colors">重置</button>
+             <button type="button" onClick={() => { setHasSearched(false); setSelectedEntity(null); setActiveNode(null); }} className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded text-sm font-bold transition-colors">重置</button>
           </div>
         </form>
       </div>
@@ -123,7 +129,7 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
           {/* 左栏 30% */}
           <div className="w-[30%] flex flex-col gap-3">
              <div className="glass-card p-4 shrink-0 relative overflow-hidden group border-t-4 border-[#004098]">
-                <button className="absolute top-3 right-3 text-gray-400 hover:text-yellow-500 transition-colors" title="收藏">
+                <button className="absolute top-3 right-3 text-gray-400 hover:text-yellow-500 transition-colors" title="收藏" onClick={() => showToast('已添加至重点人员关注库')}>
                    <Star className="w-5 h-5" />
                 </button>
                 <div className="flex items-center gap-4 mb-4">
@@ -147,13 +153,13 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                  <div className="text-gray-500 text-xs font-bold mb-1 flex items-center justify-center"><FileSearch className="w-3 h-3 mr-1"/> 案件参与</div>
                  <div className="text-2xl font-bold text-[#004098] underline decoration-blue-300">3</div>
                </div>
-               <div className="bg-orange-50/50 border border-orange-100 p-3 rounded text-center cursor-pointer hover:bg-orange-100 transition-all shadow-sm">
+               <div className="bg-orange-50/50 border border-orange-100 p-3 rounded text-center cursor-pointer hover:bg-orange-100 transition-all shadow-sm" onClick={() => setSelectedEntity('vehicles')}>
                  <div className="text-gray-500 text-xs font-bold mb-1 flex items-center justify-center"><Truck className="w-3 h-3 mr-1"/> 关联车辆</div>
-                 <div className="text-2xl font-bold text-orange-600">2</div>
+                 <div className="text-2xl font-bold text-orange-600 underline decoration-orange-300">2</div>
                </div>
-               <div className="bg-red-50/50 border border-red-100 p-3 rounded text-center cursor-pointer hover:bg-red-100 transition-all shadow-sm">
+               <div className="bg-red-50/50 border border-red-100 p-3 rounded text-center cursor-pointer hover:bg-red-100 transition-all shadow-sm" onClick={() => setSelectedEntity('violations')}>
                  <div className="text-gray-500 text-xs font-bold mb-1 flex items-center justify-center"><ShieldAlert className="w-3 h-3 mr-1"/> 违规处罚</div>
-                 <div className="text-2xl font-bold text-red-600">5</div>
+                 <div className="text-2xl font-bold text-red-600 underline decoration-red-300">5</div>
                </div>
                <div className="bg-purple-50/50 border border-purple-100 p-3 rounded text-center cursor-pointer hover:bg-purple-100 transition-all shadow-sm" onClick={() => setSelectedEntity('persons')}>
                  <div className="text-gray-500 text-xs font-bold mb-1 flex items-center justify-center"><Network className="w-3 h-3 mr-1"/> 紧密同案人</div>
@@ -165,13 +171,13 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
           {/* 右栏 70% */}
           <div className="w-[70%] glass-card flex flex-col relative overflow-hidden bg-[#f8fafc]">
             <div className="absolute top-4 right-4 z-20 flex gap-2">
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱缩放"><Maximize2 className="w-4 h-4" /></button>
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱导出"><Download className="w-4 h-4" /></button>
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="详情打印"><Printer className="w-4 h-4" /></button>
+              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱缩放" onClick={() => showToast('图谱缩放模式已开启')}><Maximize2 className="w-4 h-4" /></button>
+              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱导出" onClick={() => showToast('已成功导出高清知识图谱 PNG 文件')}><Download className="w-4 h-4" /></button>
+              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="详情打印" onClick={() => showToast('打印机配置已调用，正在准备打印')}><Printer className="w-4 h-4" /></button>
             </div>
             
             {selectedEntity === 'cases' ? (
-              <div className="absolute inset-0 bg-white z-10 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute inset-0 bg-white z-30 flex flex-col animate-in fade-in zoom-in-95 duration-200">
                  <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                     <h3 className="font-bold text-sm text-gray-700 flex items-center"><FileText className="w-4 h-4 mr-2" /> 关联案件清单 (3起)</h3>
                     <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
@@ -190,15 +196,102 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                       <tbody>
                         {[1,2,3].map(i => (
                           <tr key={i} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
-                            <td className="p-3 text-gray-800 font-mono font-bold">AJ-2023101{i}</td>
-                            <td className="p-3 text-gray-600">2023-10-1{i} 14:00</td>
+                            <td className="p-3 text-gray-800 font-mono font-bold">AJ-2026101{i}</td>
+                            <td className="p-3 text-gray-600">2026-10-1{i} 14:00</td>
                             <td className="p-3 text-gray-600">无证运输 / 涉假</td>
                             <td className="p-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded text-xs border border-red-200 font-bold">已结案</span></td>
-                            <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline">查看卷宗</td>
+                            <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取案件 [AJ-2026101${i}] 的完整数字化卷宗...`)}>查看卷宗</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                 </div>
+              </div>
+            ) : selectedEntity === 'vehicles' ? (
+              <div className="absolute inset-0 bg-white z-30 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 className="font-bold text-sm text-gray-700 flex items-center"><Truck className="w-4 h-4 mr-2" /> 关联车辆清单 (2辆)</h3>
+                    <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
+                 </div>
+                 <div className="flex-1 overflow-auto p-4">
+                    <table className="w-full text-left text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100 text-gray-600">
+                          <th className="p-3 font-bold border-b border-gray-200">车牌号码</th>
+                          <th className="p-3 font-bold border-b border-gray-200">车型</th>
+                          <th className="p-3 font-bold border-b border-gray-200">关系</th>
+                          <th className="p-3 font-bold border-b border-gray-200">风险等级</th>
+                          <th className="p-3 font-bold border-b border-gray-200 text-right">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
+                          <td className="p-3 text-gray-800 font-mono font-bold">鄂A·88***</td>
+                          <td className="p-3 text-gray-600">轻型厢式货车</td>
+                          <td className="p-3 text-gray-600">本人名下</td>
+                          <td className="p-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded text-xs border border-red-200 font-bold">高风险</span></td>
+                          <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
+                        </tr>
+                        <tr className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
+                          <td className="p-3 text-gray-800 font-mono font-bold">鄂A·99***</td>
+                          <td className="p-3 text-gray-600">小型面包车</td>
+                          <td className="p-3 text-gray-600">亲属名下</td>
+                          <td className="p-3"><span className="bg-orange-50 text-orange-700 px-2 py-1 rounded text-xs border border-orange-200 font-bold">中风险</span></td>
+                          <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                 </div>
+              </div>
+            ) : selectedEntity === 'violations' ? (
+              <div className="absolute inset-0 bg-white z-30 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 className="font-bold text-sm text-gray-700 flex items-center"><ShieldAlert className="w-4 h-4 mr-2" /> 违规处罚台账 (5条)</h3>
+                    <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
+                 </div>
+                 <div className="flex-1 overflow-auto p-4">
+                    <table className="w-full text-left text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100 text-gray-600">
+                          <th className="p-3 font-bold border-b border-gray-200">决定书文号</th>
+                          <th className="p-3 font-bold border-b border-gray-200">处罚日期</th>
+                          <th className="p-3 font-bold border-b border-gray-200">处罚事由</th>
+                          <th className="p-3 font-bold border-b border-gray-200">处罚结果</th>
+                          <th className="p-3 font-bold border-b border-gray-200 text-right">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[1,2,3,4,5].map(i => (
+                          <tr key={i} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
+                            <td className="p-3 text-gray-800 font-mono font-bold">罚决字[2026]第00{i}号</td>
+                            <td className="p-3 text-gray-600">2026-0{i}-15</td>
+                            <td className="p-3 text-gray-600">无证运输烟草专卖品</td>
+                            <td className="p-3 text-red-600 font-bold">罚款 5,000 元</td>
+                            <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取文书 [罚决字[2026]第00${i}号] 原件扫描件...`)}>查看文书</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                 </div>
+              </div>
+            ) : selectedEntity === 'persons' ? (
+              <div className="absolute inset-0 bg-white z-30 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                    <h3 className="font-bold text-sm text-gray-700 flex items-center"><Network className="w-4 h-4 mr-2" /> 紧密同案人清单 (4人)</h3>
+                    <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
+                 </div>
+                 <div className="flex-1 overflow-auto p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      {['张三 (同案司机)', '王麻子 (分销下线)', '李四 (资金往来)', '赵某某 (频繁接触)'].map((person, idx) => (
+                        <div key={idx} className="p-4 border border-gray-200 rounded flex gap-4 items-center hover:border-[#004098] transition-colors cursor-pointer" onClick={() => showToast(`正在切换中心节点至: ${person}`)}>
+                          <div className="w-12 h-12 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center shrink-0"><User className="w-6 h-6"/></div>
+                          <div>
+                            <div className="font-bold text-sm text-gray-800">{person}</div>
+                            <div className="text-xs text-gray-500 mt-1">关联置信度: <span className="text-green-600 font-bold">98%</span></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                  </div>
               </div>
             ) : (
@@ -222,7 +315,7 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
 
                  {/* 外围节点 */}
                  <GraphNode top="20%" left="30%" icon={<Truck/>} text="鄂A·88***" sub="涉案车辆" color="orange" onClick={() => setActiveNode(nodeDetails.vehicle)} active={activeNode === nodeDetails.vehicle} />
-                 <GraphNode top="25%" left="70%" icon={<FileSearch/>} text="AJ-20231011" sub="重大假烟案" color="red" size="lg" onClick={() => setActiveNode(nodeDetails.case1)} active={activeNode === nodeDetails.case1} />
+                 <GraphNode top="25%" left="70%" icon={<FileSearch/>} text="AJ-20261011" sub="重大假烟案" color="red" size="lg" onClick={() => setActiveNode(nodeDetails.case1)} active={activeNode === nodeDetails.case1} />
                  <GraphNode top="70%" left="25%" icon={<User/>} text="张三" sub="同案人员" color="purple" onClick={() => setActiveNode(nodeDetails.person1)} active={activeNode === nodeDetails.person1} />
                  <GraphNode top="80%" left="40%" icon={<User/>} text="王麻子" sub="同案分销" color="purple" onClick={() => setActiveNode(nodeDetails.person2)} active={activeNode === nodeDetails.person2} />
                  <GraphNode top="75%" left="75%" icon={<FileText/>} text="罚决字22号" sub="违规历史" color="gray" onClick={() => setActiveNode({ title: '处罚决定书22号', type: '处罚', desc: '因无证经营违规售卖卷烟被罚款5000元。'})} />
@@ -242,7 +335,7 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                          {activeNode.owner && <div>所有人: {activeNode.owner}</div>}
                        </div>
                      )}
-                     <button className="mt-3 w-full bg-[#004098] text-white text-xs py-1.5 rounded font-bold hover:bg-blue-900 transition-colors">查看完整档案</button>
+                     <button className="mt-3 w-full bg-[#004098] text-white text-xs py-1.5 rounded font-bold hover:bg-blue-900 transition-colors" onClick={() => showToast(`AI 档案抽取中：正在打开【${activeNode.title}】的详情档案册...`)}>查看完整档案</button>
                    </div>
                  )}
               </div>
@@ -259,6 +352,14 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
            </div>
         </div>
       )}
+
+      {/* Local Toast */}
+      {toast.show && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+          <span className="text-sm font-bold">{toast.msg}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -270,6 +371,12 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState('cases');
   const [activeCaseDetails, setActiveCaseDetails] = useState<any>(null);
+  const [toast, setToast] = useState<{show: boolean, msg: string}>({show: false, msg: ''});
+
+  const showToast = (msg: string) => {
+    setToast({show: true, msg});
+    setTimeout(() => setToast({show: false, msg: ''}), 3000);
+  };
 
   useEffect(() => {
     if (tourAction === 'graph-vehicle') {
@@ -280,7 +387,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
         setHasSearched(true);
       }, 1500); // "直接投射到真实地理空间中"
       const t2 = setTimeout(() => {
-        setActiveCaseDetails({ id: 'AJ-WH20251120', date: '2025-11-20', type: '无证运输' });
+        setActiveCaseDetails({ id: 'AJ-WH20261120', date: '2026-11-20', type: '无证运输' });
       }, 7000); // "实现一键深挖与案件研判"
       return () => { clearTimeout(t1); clearTimeout(t2); };
     }
@@ -303,7 +410,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
           </div>
           <div className="flex gap-2 shrink-0">
              <button type="submit" className="bg-[#004098] hover:bg-blue-900 text-white px-6 py-2 rounded text-sm font-bold flex items-center transition-colors"><Search className="w-4 h-4 mr-1.5" /> 智能溯源</button>
-             <button type="button" className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded text-sm font-bold flex items-center transition-colors"><ArrowRightLeft className="w-4 h-4 mr-1.5" /> 换查人员</button>
+             <button type="button" onClick={() => { setHasSearched(false); setActiveCaseDetails(null); }} className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded text-sm font-bold flex items-center transition-colors"><ArrowRightLeft className="w-4 h-4 mr-1.5" /> 换查人员</button>
           </div>
         </form>
       </div>
@@ -326,7 +433,9 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                 </div>
              </div>
              <div className="flex gap-2 flex-col items-end">
-                <button className="bg-white text-blue-700 px-4 py-2 rounded text-sm border border-blue-200 hover:bg-blue-50 font-bold flex items-center shadow-sm"><Layers className="w-4 h-4 mr-1.5" /> 时空多轨碰撞分析</button>
+                <button className="bg-white text-blue-700 px-4 py-2 rounded text-sm border border-blue-200 hover:bg-blue-50 font-bold flex items-center shadow-sm" onClick={() => showToast('正在调用多轨分析引擎...')}>
+                   <Layers className="w-4 h-4 mr-1.5" /> 时空多轨碰撞分析
+                </button>
              </div>
           </div>
 
@@ -406,7 +515,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                            <thead><tr className="bg-gray-100 text-gray-700 text-xs"><th className="p-3 font-bold border-b">案件编号</th><th className="p-3 font-bold border-b">立案时间</th><th className="p-3 font-bold border-b">性质</th></tr></thead>
                            <tbody>
                              {[
-                               { id: 'AJ-WH20251120', date: '2025-11-20', type: '无证运输', active: activeCaseDetails?.id === 'AJ-WH20251120' },
+                               { id: 'AJ-WH20261120', date: '2026-11-20', type: '无证运输', active: activeCaseDetails?.id === 'AJ-WH20261120' },
                                { id: 'AJ-WH20260401', date: '2026-04-01', type: '走私/假冒', active: activeCaseDetails?.id === 'AJ-WH20260401' }
                              ].map(item => (
                                <tr key={item.id} className={cn("border-b border-gray-100 cursor-pointer transition-colors", item.active ? "bg-blue-50 border-l-4 border-l-[#004098]" : "hover:bg-gray-50 border-l-4 border-l-transparent")} onClick={() => setActiveCaseDetails(item)}>
@@ -431,7 +540,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                                <div><span className="font-bold text-gray-500 mr-2">当前状态:</span><span className="text-red-600 font-bold">已移交公安</span></div>
                                <div><span className="font-bold text-gray-500 mr-2">车辆作用:</span>作为主要运输工具，由张某驾驶被当场拦截。</div>
                             </div>
-                            <button className="mt-auto bg-white border border-[#004098] text-[#004098] py-2 rounded text-xs font-bold hover:bg-blue-50 transition-colors">查看全宗卷</button>
+                            <button className="mt-auto bg-white border border-[#004098] text-[#004098] py-2 rounded text-xs font-bold hover:bg-blue-50 transition-colors" onClick={() => showToast(`正在打开案件 [${activeCaseDetails.id}] 的详细卷宗...`)}>查看全宗卷</button>
                          </div>
                        ) : (
                          <div className="w-[300px] border border-dashed border-gray-300 rounded bg-gray-50/50 flex items-center justify-center text-gray-400 text-xs p-4 text-center shrink-0">
@@ -445,7 +554,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                    )}
                    {activeSubTab === 'persons' && (
                      <div className="p-4 space-y-3">
-                        <div className="p-3 border border-gray-200 rounded flex gap-4 items-center bg-gray-50 hover:border-blue-300 transition-colors cursor-pointer group">
+                        <div className="p-3 border border-gray-200 rounded flex gap-4 items-center bg-gray-50 hover:border-blue-300 transition-colors cursor-pointer group" onClick={() => showToast('跳转到 王某 的人员详细图谱')}>
                            <div className="w-10 h-10 bg-[#004098] text-white rounded-full flex items-center justify-center shrink-0 shadow-sm"><User className="w-5 h-5"/></div>
                            <div className="flex-1">
                              <div className="flex justify-between items-center">
@@ -455,7 +564,7 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                              <div className="text-xs text-gray-500 mt-1 font-mono">420102********11</div>
                            </div>
                         </div>
-                        <div className="p-3 border border-gray-200 rounded flex gap-4 items-center hover:border-blue-300 transition-colors cursor-pointer group">
+                        <div className="p-3 border border-gray-200 rounded flex gap-4 items-center hover:border-blue-300 transition-colors cursor-pointer group" onClick={() => showToast('跳转到 张某某 的人员详细图谱')}>
                            <div className="w-10 h-10 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center shrink-0"><User className="w-5 h-5"/></div>
                            <div className="flex-1">
                              <div className="flex justify-between items-center">
@@ -492,6 +601,12 @@ function Layers(props: any) { return <svg {...props} xmlns="http://www.w3.org/20
 function ViolationSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{show: boolean, msg: string}>({show: false, msg: ''});
+
+  const showToast = (msg: string) => {
+    setToast({show: true, msg});
+    setTimeout(() => setToast({show: false, msg: ''}), 3000);
+  };
 
   useEffect(() => {
     if (tourAction === 'graph-violation') {
@@ -604,7 +719,7 @@ function ViolationSearch({ tourAction }: { tourAction?: string }) {
                <div className="p-3 bg-gray-50 flex justify-between items-center border-b border-gray-200">
                   <h3 className="font-bold text-sm text-gray-800 flex items-center"><FileText className="w-4 h-4 mr-1.5 text-gray-500"/> 结构化违规证据链</h3>
                   <div className="flex gap-2">
-                     <button className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-100 transition-colors">批量导出研判表</button>
+                     <button className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-100 transition-colors" onClick={() => showToast('正在批量导出当前筛选条件下的研判记录表...')}>批量导出研判表</button>
                   </div>
                </div>
                <div className="flex-1 overflow-auto p-4 bg-gray-50/50">
@@ -620,7 +735,7 @@ function ViolationSearch({ tourAction }: { tourAction?: string }) {
                         <div className="col-span-2 flex items-center"><span className="text-gray-400 mr-2">AI 状态研判:</span><span className="text-green-600 font-bold flex items-center"><CheckCircle2 className="w-3.5 h-3.5 mr-1" /> 已立案处理完结 (执行罚款及吊销处理)</span></div>
                      </div>
                      <div className="mt-4 pt-3 border-t border-dashed border-gray-200 flex justify-end">
-                       <button className="text-[#004098] font-bold text-xs hover:underline flex items-center opacity-0 group-hover:opacity-100 transition-opacity">提取案件全景要素 <ChevronRight className="w-3 h-3" /></button>
+                       <button className="text-[#004098] font-bold text-xs hover:underline flex items-center opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => showToast('已提取案件要素，即将进入【2026年3月特大售假关联事件】全景视图')}>提取案件全景要素 <ChevronRight className="w-3 h-3" /></button>
                      </div>
                   </div>
                </div>
@@ -672,13 +787,21 @@ function ViolationSearch({ tourAction }: { tourAction?: string }) {
                </div>
                
                <div className="p-4 border-t border-white/10 bg-black/10 shrink-0">
-                 <button className="w-full bg-white hover:bg-gray-50 text-[#004098] py-3 rounded text-sm font-bold transition-transform active:scale-95 shadow-lg flex justify-center items-center">
+                 <button className="w-full bg-white hover:bg-gray-50 text-[#004098] py-3 rounded text-sm font-bold transition-transform active:scale-95 shadow-lg flex justify-center items-center" onClick={() => showToast('正在调用文档生成微服务，情报包 Word 格式生成中...')}>
                    <Download className="w-4 h-4 mr-2" />
                    一键生成情报包 (Word格式)
                  </button>
                </div>
              </div>
           </div>
+        </div>
+      )}
+
+      {/* Local Toast */}
+      {toast.show && (
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 mr-2 text-green-400" />
+          <span className="text-sm font-bold">{toast.msg}</span>
         </div>
       )}
     </div>
