@@ -7,6 +7,23 @@ import 'leaflet/dist/leaflet.css';
 
 export default function KnowledgeGraph() {
   const [activeTab, setActiveTab] = useState<'person' | 'vehicle' | 'violation'>('person');
+  const [tourAction, setTourAction] = useState<string>('');
+
+  useEffect(() => {
+    const handleAction = (e: any) => {
+      const action = e.detail;
+      setTourAction(action);
+      if (action === 'graph-person') {
+        setActiveTab('person');
+      } else if (action === 'graph-vehicle') {
+        setActiveTab('vehicle');
+      } else if (action === 'graph-violation') {
+        setActiveTab('violation');
+      }
+    };
+    window.addEventListener('tour-action', handleAction);
+    return () => window.removeEventListener('tour-action', handleAction);
+  }, []);
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -27,9 +44,9 @@ export default function KnowledgeGraph() {
       </div>
 
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'person' && <PersonSearch />}
-        {activeTab === 'vehicle' && <VehicleSearch />}
-        {activeTab === 'violation' && <ViolationSearch />}
+        {activeTab === 'person' && <PersonSearch tourAction={tourAction} />}
+        {activeTab === 'vehicle' && <VehicleSearch tourAction={tourAction} />}
+        {activeTab === 'violation' && <ViolationSearch tourAction={tourAction} />}
       </div>
     </div>
   );
@@ -38,23 +55,39 @@ export default function KnowledgeGraph() {
 // ==========================================
 // 3.1.1 涉案人员全维度检索
 // ==========================================
-function PersonSearch() {
+function PersonSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<any>(null);
   const [activeNode, setActiveNode] = useState<any>(null);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setHasSearched(true);
-    setSelectedEntity(null);
-    setActiveNode(null);
-  };
 
   const nodeDetails = {
     case1: { title: '假烟案 (AJ-20231011)', type: '案件', desc: '涉案金额20万元，在白云区某仓库查获假冒伪劣卷烟共计1200条。目前已立案并逮捕3名主要嫌疑人。', date: '2023-10-11' },
     person1: { title: '张三', type: '同案人员', desc: '骨干人员，负责跨省运输。曾有2次非法经营前科。', id: '4401*****123' },
     person2: { title: '王麻子', type: '同案人员', desc: '分销下线，负责将假烟销往多家便利店。', id: '4401*****456' },
     vehicle: { title: '粤A·88***', type: '涉案车辆', desc: '长期活跃于物流园，用于跨市运输。轨迹高频出现于凌晨。', owner: '李四老婆' }
+  };
+
+  useEffect(() => {
+    if (tourAction === 'graph-person') {
+      setHasSearched(false);
+      const t1 = setTimeout(() => {
+        setHasSearched(true);
+      }, 2500); // 配合语音："当我们输入特定嫌疑人信息进行搜索"
+      const t2 = setTimeout(() => {
+        setActiveNode(nodeDetails.vehicle);
+      }, 6000); // 配合语音："涉案车辆"
+      const t3 = setTimeout(() => {
+        setActiveNode(nodeDetails.case1);
+      }, 10000); // 配合语音："资金往来的可视化关联网络"
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }
+  }, [tourAction]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setHasSearched(true);
+    setSelectedEntity(null);
+    setActiveNode(null);
   };
 
   return (
@@ -96,7 +129,7 @@ function PersonSearch() {
                 <div className="flex items-center gap-4 mb-4">
                    <div className="w-16 h-16 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center font-bold text-2xl shrink-0"><User className="w-8 h-8"/></div>
                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 tracking-tight">李某某</h3>
+                      <h3 className="text-xl font-bold text-gray-800 tracking-tight flex items-center gap-2">李某某 <Sparkles className="w-4 h-4 text-purple-600" /></h3>
                       <p className="text-sm text-gray-500 font-mono mt-0.5">440304******1234</p>
                    </div>
                 </div>
@@ -107,8 +140,10 @@ function PersonSearch() {
                 </div>
              </div>
              
-             <div className="glass-card flex-1 p-4 grid grid-cols-2 gap-3 content-start">
-               <div className="bg-blue-50/50 border border-blue-100 p-3 rounded text-center cursor-pointer hover:bg-blue-100 transition-all shadow-sm" onClick={() => setSelectedEntity('cases')}>
+             <div className="glass-card flex-1 p-4 grid grid-cols-2 gap-3 content-start relative overflow-hidden group">
+               <div className="absolute inset-0 bg-gradient-to-br from-purple-50/20 to-transparent pointer-events-none z-0"></div>
+               <div className="col-span-2 text-[10px] text-purple-600 font-bold mb-1 flex items-center bg-purple-50 p-1.5 rounded border border-purple-100 shadow-sm relative z-10"><BrainCircuit className="w-3 h-3 mr-1"/> AI 深度挖掘关联节点</div>
+               <div className="bg-blue-50/50 border border-blue-100 p-3 rounded text-center cursor-pointer hover:bg-blue-100 transition-all shadow-sm relative z-10" onClick={() => setSelectedEntity('cases')}>
                  <div className="text-gray-500 text-xs font-bold mb-1 flex items-center justify-center"><FileSearch className="w-3 h-3 mr-1"/> 案件参与</div>
                  <div className="text-2xl font-bold text-[#004098] underline decoration-blue-300">3</div>
                </div>
@@ -215,10 +250,13 @@ function PersonSearch() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 glass-card flex flex-col items-center justify-center text-gray-400">
-           <Network className="w-24 h-24 mb-4 text-[#004098] opacity-20" />
-           <p className="text-xl font-bold text-gray-500">知识图谱待激活</p>
-           <p className="text-sm mt-2 text-gray-400">请在上方输入准确或模糊条件后点击“智能检索”生成涉案人员多维画像</p>
+        <div className="flex-1 glass-card flex flex-col items-center justify-center text-gray-400 relative overflow-hidden group">
+           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-60 z-0"></div>
+           <div className="relative z-10 flex flex-col items-center">
+             <BrainCircuit className="w-24 h-24 mb-4 text-[#004098] opacity-20 ai-pulse" />
+             <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-purple-500 flex items-center"><Sparkles className="w-5 h-5 mr-2 text-purple-400" /> 等待 AI 大模型指令输入</p>
+             <p className="text-sm mt-3 text-gray-500 font-medium">请在上方输入准确或模糊条件，引擎将自动生成涉案人员【跨域多维画像核心图谱】</p>
+           </div>
         </div>
       )}
     </div>
@@ -228,10 +266,25 @@ function PersonSearch() {
 // ==========================================
 // 3.1.2 涉案车辆智能溯源
 // ==========================================
-function VehicleSearch() {
+function VehicleSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState('cases');
   const [activeCaseDetails, setActiveCaseDetails] = useState<any>(null);
+
+  useEffect(() => {
+    if (tourAction === 'graph-vehicle') {
+      setHasSearched(false);
+      setActiveCaseDetails(null);
+      setActiveSubTab('cases');
+      const t1 = setTimeout(() => {
+        setHasSearched(true);
+      }, 1500); // "直接投射到真实地理空间中"
+      const t2 = setTimeout(() => {
+        setActiveCaseDetails({ id: 'AJ-WH20251120', date: '2025-11-20', type: '无证运输' });
+      }, 7000); // "实现一键深挖与案件研判"
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [tourAction]);
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -436,9 +489,24 @@ function Layers(props: any) { return <svg {...props} xmlns="http://www.w3.org/20
 // ==========================================
 // 3.1.3 违规信息智能整合 (AI)
 // ==========================================
-function ViolationSearch() {
+function ViolationSearch({ tourAction }: { tourAction?: string }) {
   const [hasSearched, setHasSearched] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    if (tourAction === 'graph-violation') {
+      setHasSearched(false);
+      setIsGenerating(false);
+      const t1 = setTimeout(() => {
+        setIsGenerating(true);
+      }, 2500); // "当输入核心要素下发研判指令后"
+      const t2 = setTimeout(() => {
+        setIsGenerating(false);
+        setHasSearched(true);
+      }, 7500); // "迅速生成区域异常热度与高发违法类型聚类"
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [tourAction]);
   
   const pieData = [{ name: '跨区窜货', value: 450 }, { name: '售假/走私', value: 300 }, { name: '无证经营', value: 250 }];
   const barData = [{ name: '江汉区', 次数: 85 }, { name: '武昌区', 次数: 72 }, { name: '洪山区', 次数: 60 }, { name: '江岸区', 次数: 40 }];

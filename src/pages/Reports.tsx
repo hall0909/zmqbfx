@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { FileText, FileBarChart, Clock, CheckCircle2, Loader2, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { FileText, FileBarChart, Clock, CheckCircle2, Loader2, Download, Sparkles, BrainCircuit } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Report {
   id: string;
@@ -18,6 +19,16 @@ const mockReports: Report[] = [
 export default function Reports() {
   const [reports, setReports] = useState<Report[]>(mockReports);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const handleAction = (e: any) => {
+      if (e.detail === 'reports-start') {
+        setTimeout(handleGenerate, 4500); // 配合语音："只需在此处点击一键智能生成"
+      }
+    };
+    window.addEventListener('tour-action', handleAction);
+    return () => window.removeEventListener('tour-action', handleAction);
+  }, []);
 
   const handleGenerate = () => {
     setIsGenerating(true);
@@ -43,19 +54,23 @@ export default function Reports() {
 
   return (
     <div className="flex flex-col gap-3 h-full">
-      <div className="glass-card p-4 shrink-0">
-        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <div className="glass-card p-4 shrink-0 relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50 pointer-events-none z-0"></div>
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 relative z-10">
           <div>
-            <h2 className="text-sm font-bold text-gray-700 mb-1 border-l-4 border-blue-800 pl-2">AI 智能分析自动化中心</h2>
-            <p className="text-[10px] text-gray-500">基于数据库模板，自动提取案件、市场、督查等数据进行推理描述，一键生成标准化分析报告。</p>
+            <h2 className="text-sm font-bold text-gray-700 mb-1 border-l-4 border-purple-600 pl-2 flex items-center">
+               <BrainCircuit className="w-5 h-5 mr-2 text-purple-600" />
+               大模型报告智能生成矩阵
+            </h2>
+            <p className="text-[10px] text-gray-500">连接底层检索图谱、风控态势库，自动推理业务数据，一键生成带有深刻洞察的标准化战术简报。</p>
           </div>
           <button 
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="bg-[#004098] text-white px-4 py-2 text-xs rounded border border-[#004098] hover:bg-blue-900 transition-colors flex items-center justify-center disabled:opacity-70 shadow-sm"
+            className="bg-gradient-to-r from-purple-600 to-[#004098] hover:from-purple-700 hover:to-blue-900 text-white px-5 py-2 text-xs rounded border-none transition-all flex items-center justify-center disabled:opacity-70 shadow-md font-bold relative overflow-hidden"
           >
-            {isGenerating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <FileBarChart className="w-3.5 h-3.5 mr-1.5" />}
-            一键智能生成当期报告
+            {isGenerating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+            一键智能提取生成当期简报
           </button>
         </div>
       </div>
@@ -85,9 +100,10 @@ export default function Reports() {
             <tbody>
               {reports.map((report) => (
                 <tr key={report.id} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/50 transition-colors">
-                  <td className="px-4 py-3 font-bold text-gray-800 flex items-center">
+                  <td className="px-4 py-3 font-bold flex items-center">
                     <FileText className="w-4 h-4 text-gray-400 mr-2" />
-                    {report.title}
+                    <span className={cn(report.status === 'generating' ? "text-purple-600" : "text-gray-800")}>{report.title}</span>
+                    {report.id === reports[0]?.id && report.status === 'completed' && <Sparkles className="w-3 h-3 ml-2 text-purple-500" />}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{report.type}</td>
                   <td className="px-4 py-3 text-gray-500 font-mono text-[10px] flex items-center">
@@ -100,7 +116,7 @@ export default function Reports() {
                         <CheckCircle2 className="w-3 h-3 mr-1" /> 执行成功
                       </span>
                     ) : (
-                      <span className="flex items-center text-blue-700 bg-blue-50 px-2 py-0.5 rounded w-max border border-blue-200 text-[10px] text-center font-bold">
+                      <span className="flex items-center text-purple-700 bg-purple-50 px-2 py-0.5 rounded w-max border border-purple-200 text-[10px] text-center font-bold ai-pulse">
                         <Loader2 className="w-3 h-3 mr-1 animate-spin" /> AI采编中
                       </span>
                     )}

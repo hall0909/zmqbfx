@@ -33,6 +33,37 @@ export default function AIQA() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    const handleAction = (e: any) => {
+      if (e.detail === 'aiqa-start') {
+        const demoQuestion = '无证运输卷烟如何处罚？';
+        
+        // 配合语音开始时间，稍微延迟触发提问
+        setTimeout(() => {
+          setInput(demoQuestion);
+          
+          // 模拟输入完成后的发送
+          setTimeout(() => {
+            const userMsg: Message = { id: Date.now().toString(), sender: 'user', text: demoQuestion };
+            setMessages(prev => [...prev, userMsg]);
+            setInput('');
+            
+            // 模拟大模型思考和回复
+            setTimeout(() => {
+              setMessages(prev => [...prev, {
+                id: Date.now().toString(),
+                sender: 'ai',
+                text: '根据《中华人民共和国烟草专卖法实施条例》第五十二条 规定：无准运证或者超过准运证规定的数量托运或者自运烟草专卖品的，处以违法运输的烟草专卖品价值20%以上50%以下的罚款，可以按照国家规定的价格收购违法运输的烟草专卖品。\n\n**建议执法流程：**\n1. 现场固定货物清单及无证证据。\n2. 对涉案人员进行笔录调查。\n3. 按标准立案审批。'
+              }]);
+            }, 1000);
+          }, 800);
+        }, 6000); // 配合语音："执法人员可通过自然语言输入案件疑问" 的时间节点
+      }
+    };
+    window.addEventListener('tour-action', handleAction);
+    return () => window.removeEventListener('tour-action', handleAction);
+  }, []);
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;

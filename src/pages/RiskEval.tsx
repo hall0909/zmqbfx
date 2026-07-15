@@ -16,6 +16,20 @@ import 'leaflet/dist/leaflet.css';
 
 export default function RiskEval() {
   const [activeTab, setActiveTab] = useState<'person' | 'area' | 'retailer' | 'metrics' | 'trend'>('person');
+  const [tourAction, setTourAction] = useState<string>('');
+
+  useEffect(() => {
+    const handleAction = (e: any) => {
+      setTourAction(e.detail);
+      if (e.detail === 'risk-person') setActiveTab('person');
+      else if (e.detail === 'risk-area') setActiveTab('area');
+      else if (e.detail === 'risk-retailer') setActiveTab('retailer');
+      else if (e.detail === 'risk-metrics') setActiveTab('metrics');
+      else if (e.detail === 'risk-trend') setActiveTab('trend');
+    };
+    window.addEventListener('tour-action', handleAction);
+    return () => window.removeEventListener('tour-action', handleAction);
+  }, []);
 
   const TABS = [
     { id: 'person', label: '涉案人员分析', icon: Users },
@@ -44,18 +58,18 @@ export default function RiskEval() {
             </button>
           ))}
         </div>
-        <div className="flex items-center text-[#004098] bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
-           <BrainCircuit className="w-4 h-4 mr-1.5" />
-           <span className="text-xs font-bold tracking-wide">风控引擎运行中 | 数据更新: 实时</span>
+        <div className="flex items-center text-purple-700 bg-purple-50 px-3 py-1.5 rounded border border-purple-200">
+           <BrainCircuit className="w-4 h-4 mr-1.5 ai-pulse" />
+           <span className="text-xs font-bold tracking-wide">AI大模型全栈护航 | 风控引擎运行中</span>
         </div>
       </div>
 
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'person' && <PersonAnalysis />}
-        {activeTab === 'area' && <AreaRiskAnalysis />}
-        {activeTab === 'retailer' && <RetailerRisk />}
-        {activeTab === 'metrics' && <MetricsQA />}
-        {activeTab === 'trend' && <TrendPrediction />}
+        {activeTab === 'person' && <PersonAnalysis tourAction={tourAction} />}
+        {activeTab === 'area' && <AreaRiskAnalysis tourAction={tourAction} />}
+        {activeTab === 'retailer' && <RetailerRisk tourAction={tourAction} />}
+        {activeTab === 'metrics' && <MetricsQA tourAction={tourAction} />}
+        {activeTab === 'trend' && <TrendPrediction tourAction={tourAction} />}
       </div>
     </div>
   );
@@ -64,7 +78,7 @@ export default function RiskEval() {
 // ----------------------------------------------------
 // 3.2.1 涉案人员维度智能统计分析
 // ----------------------------------------------------
-function PersonAnalysis() {
+function PersonAnalysis({ tourAction }: { tourAction?: string }) {
   const barData = [{ name: '李某某', freq: 12 }, { name: '张某', freq: 9 }, { name: '王某某', freq: 7 }, { name: '刘某', freq: 5 }];
   const radarData = [
     { subject: '跨区域流动性', A: 120, fullMark: 150 },
@@ -104,8 +118,9 @@ function PersonAnalysis() {
            <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-bold text-gray-700">人员违法频次排行</h3></div>
            <ResponsiveContainer width="100%" height="100%"><BarChart data={barData} layout="vertical" margin={{top:0,right:20,left:0,bottom:0}}><XAxis type="number" hide/><YAxis dataKey="name" type="category" width={50} tick={{fontSize:11, fontWeight:'bold'}}/><Tooltip/><Bar dataKey="freq" fill="#004098" radius={[0,4,4,0]} barSize={16}/></BarChart></ResponsiveContainer>
          </div>
-         <div className="flex-[1.2] glass-card p-3 flex flex-col">
-           <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-bold text-gray-700">涉烟团伙成员画像雷达</h3></div>
+         <div className="flex-[1.2] glass-card p-3 flex flex-col relative overflow-hidden group">
+           <div className="absolute inset-0 bg-gradient-to-tr from-purple-50/30 to-transparent z-0 pointer-events-none"></div>
+           <div className="flex justify-between items-center mb-2 relative z-10"><h3 className="text-sm font-bold text-gray-700 flex items-center">涉烟团伙成员画像雷达 <Sparkles className="w-3.5 h-3.5 ml-1 text-purple-500" /></h3></div>
            <ResponsiveContainer width="100%" height="100%"><RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}><PolarGrid stroke="#e2e8f0"/><PolarAngleAxis dataKey="subject" tick={{fontSize:10, fill:'#475569'}}/><PolarRadiusAxis angle={30} domain={[0, 150]} tick={false}/><Radar name="属性" dataKey="A" stroke="#004098" fill="#004098" fillOpacity={0.4} /></RadarChart></ResponsiveContainer>
          </div>
       </div>
@@ -120,7 +135,7 @@ function PersonAnalysis() {
             <div className="flex gap-2 items-center">
                <input type="text" placeholder="搜姓名/身份证号..." className="border text-xs px-2 py-1 rounded w-48"/>
                <select className="border text-xs px-2 py-1 rounded"><option>按违规频次倒序</option></select>
-               <button className="bg-[#004098] text-white px-3 py-1 rounded text-xs font-bold ml-2">趋势预测分析</button>
+               <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold ml-2 flex items-center transition-colors shadow-sm"><BrainCircuit className="w-3 h-3 mr-1" />趋势预测分析</button>
             </div>
          </div>
          <div className="flex-1 overflow-auto">
@@ -151,7 +166,28 @@ function PersonAnalysis() {
 // ----------------------------------------------------
 // 3.2.2 涉案区域活力与风险智能分析
 // ----------------------------------------------------
-function AreaRiskAnalysis() {
+function AreaRiskAnalysis({ tourAction }: { tourAction?: string }) {
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
+  const [highlightDetails, setHighlightDetails] = useState(false);
+
+  useEffect(() => {
+    if (tourAction === 'risk-area') {
+      setShowDemoPopup(false);
+      setHighlightDetails(false);
+      const t1 = setTimeout(() => {
+        setShowDemoPopup(true);
+      }, 3500); // "我们可以看到地图上高危聚集的商圈节点"
+      const t2 = setTimeout(() => {
+        setHighlightDetails(true);
+      }, 6500); // "提示这里物流末端极其异常"
+      const t3 = setTimeout(() => {
+        setShowDemoPopup(false);
+        setHighlightDetails(false);
+      }, 12000); // 结束清理
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }
+  }, [tourAction]);
+
   return (
     <div className="flex flex-col h-full gap-3 animate-in fade-in zoom-in-95 duration-300">
       <div className="glass-card p-3 shrink-0 flex items-center justify-between border-l-4 border-[#004098]">
@@ -169,6 +205,15 @@ function AreaRiskAnalysis() {
       <div className="flex-1 flex gap-3 overflow-hidden">
          {/* 左侧 地图 70% */}
          <div className="flex-[7] glass-card relative overflow-hidden w-full h-full border border-gray-300 shadow-inner bg-[#f0f4f8]">
+            {showDemoPopup && (
+              <div className="absolute z-40 top-1/2 left-[45%] transform -translate-x-1/2 -translate-y-1/2 bg-white p-3 rounded-lg shadow-xl border-2 border-red-400 animate-in zoom-in-75 fade-in duration-300 pointer-events-none">
+                 <div className="flex flex-col font-bold">
+                    <span className="text-red-700 text-sm border-b border-red-200 pb-1 mb-1">江汉区核心商圈</span>
+                    <div className="text-xs text-gray-600 mt-2">发案率: <span className="text-red-600">8.5% (异常偏高)</span></div>
+                    <div className="text-xs text-gray-600 mt-1">关联风险: <span className="text-red-600">物流末端存在极其异常的包裹聚集</span></div>
+                 </div>
+              </div>
+            )}
             <div className="absolute top-4 right-4 z-30 flex gap-2">
               <button className="bg-white p-2 shadow rounded hover:text-blue-600"><MapIcon className="w-4 h-4"/></button>
               <button className="bg-white p-2 shadow rounded hover:text-blue-600"><Maximize2 className="w-4 h-4"/></button>
@@ -234,7 +279,7 @@ function AreaRiskAnalysis() {
          </div>
 
          {/* 右侧 侧边栏 30% */}
-         <div className="flex-[3] glass-card flex flex-col bg-white">
+         <div className={cn("flex-[3] glass-card flex flex-col bg-white transition-all duration-500", highlightDetails ? "ring-4 ring-orange-500 shadow-2xl scale-[1.02] z-30" : "")}>
             <div className="p-4 bg-gray-50 border-b border-gray-200 shrink-0">
                <h3 className="font-bold text-[#004098] flex items-center mb-3"><Flame className="w-4 h-4 mr-1.5" /> 智能评估区域排行榜 (TOP 3)</h3>
                <div className="space-y-2">
@@ -287,7 +332,7 @@ function AreaRiskAnalysis() {
 // ----------------------------------------------------
 // 3.2.3 零售户市场风险智能评估
 // ----------------------------------------------------
-function RetailerRisk() {
+function RetailerRisk({ tourAction }: { tourAction?: string }) {
   const pieData = [{ name: '合规经营 (低)', value: 890 }, { name: '日常关注 (中)', value: 89 }, { name: '严重预警 (高)', value: 21 }];
   const COLORS = ['#22c55e', '#f97316', '#ef4444'];
 
@@ -380,7 +425,7 @@ function RetailerRisk() {
 // ----------------------------------------------------
 // 3.2.4 涉烟指标智能解析与自然语言问答
 // ----------------------------------------------------
-function MetricsQA() {
+function MetricsQA({ tourAction }: { tourAction?: string }) {
   const [qaHistory, setQaHistory] = useState([
      { q: '上个月江汉区无证运输案件占比多少？', a: '经过模型检索底层数据：上月江汉区共发生无证运输案件45起，占全区涉烟案件总数（120起）的 37.5%。', type: 'text' },
      { q: '画出该区各类案件的分布图', a: '', type: 'chart' }
@@ -487,7 +532,7 @@ function MetricsQA() {
 // ----------------------------------------------------
 // 3.2.5 涉烟违法趋势智能预测
 // ----------------------------------------------------
-function TrendPrediction() {
+function TrendPrediction({ tourAction }: { tourAction?: string }) {
   const lineData = [
     { month: '4月', 无证运输: 120, 假烟: 80, 走私: 30 },
     { month: '6月', 无证运输: 140, 假烟: 75, 走私: 35 },
