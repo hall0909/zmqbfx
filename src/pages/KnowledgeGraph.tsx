@@ -170,11 +170,13 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
 
           {/* 右栏 70% */}
           <div className="w-[70%] glass-card flex flex-col relative overflow-hidden bg-[#f8fafc]">
-            <div className="absolute top-4 right-4 z-20 flex gap-2">
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱缩放" onClick={() => showToast('图谱缩放模式已开启')}><Maximize2 className="w-4 h-4" /></button>
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱导出" onClick={() => showToast('已成功导出高清知识图谱 PNG 文件')}><Download className="w-4 h-4" /></button>
-              <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="详情打印" onClick={() => showToast('打印机配置已调用，正在准备打印')}><Printer className="w-4 h-4" /></button>
-            </div>
+            {!selectedEntity && (
+              <div className="absolute top-4 right-4 z-20 flex gap-2">
+                <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱缩放" onClick={() => showToast('图谱缩放模式已开启')}><Maximize2 className="w-4 h-4" /></button>
+                <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="图谱导出" onClick={() => showToast('已成功导出高清知识图谱 PNG 文件')}><Download className="w-4 h-4" /></button>
+                <button className="bg-white p-2 rounded shadow-sm border border-gray-200 hover:text-[#004098] transition-colors" title="详情打印" onClick={() => showToast('打印机配置已调用，正在准备打印')}><Printer className="w-4 h-4" /></button>
+              </div>
+            )}
             
             {selectedEntity === 'cases' ? (
               <div className="absolute inset-0 bg-white z-30 flex flex-col animate-in fade-in zoom-in-95 duration-200">
@@ -183,28 +185,30 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                     <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
                  </div>
                  <div className="flex-1 overflow-auto p-4">
-                    <table className="w-full text-left text-sm border-collapse">
-                      <thead>
-                        <tr className="bg-gray-100 text-gray-600">
-                          <th className="p-3 font-bold border-b border-gray-200">案件编号</th>
-                          <th className="p-3 font-bold border-b border-gray-200">涉案时间</th>
-                          <th className="p-3 font-bold border-b border-gray-200">案件类型</th>
-                          <th className="p-3 font-bold border-b border-gray-200">处理状态</th>
-                          <th className="p-3 font-bold border-b border-gray-200 text-right">操作</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[1,2,3].map(i => (
-                          <tr key={i} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
-                            <td className="p-3 text-gray-800 font-mono font-bold">AJ-2026101{i}</td>
-                            <td className="p-3 text-gray-600">2026-10-1{i} 14:00</td>
-                            <td className="p-3 text-gray-600">无证运输 / 涉假</td>
-                            <td className="p-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded text-xs border border-red-200 font-bold">已结案</span></td>
-                            <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取案件 [AJ-2026101${i}] 的完整数字化卷宗...`)}>查看卷宗</td>
+                    <div className="rounded-md border border-gray-200 overflow-hidden shadow-sm">
+                      <table className="w-full text-left text-sm border-collapse bg-white">
+                        <thead className="bg-slate-50">
+                          <tr className="text-slate-500 text-xs uppercase tracking-wider">
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">案件编号</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">涉案时间</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">案件类型</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">处理状态</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200 text-right">操作</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {[1,2,3].map(i => (
+                            <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="px-4 py-3 text-slate-800 font-mono font-bold">AJ-2026101{i}</td>
+                              <td className="px-4 py-3 text-slate-600 font-mono text-xs">2026-10-1{i} 14:00</td>
+                              <td className="px-4 py-3 text-slate-600 font-medium">无证运输 / 涉假</td>
+                              <td className="px-4 py-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-[10px] border border-red-200 font-bold">已结案</span></td>
+                              <td className="px-4 py-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取案件 [AJ-2026101${i}] 的完整数字化卷宗...`)}>查看卷宗</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                  </div>
               </div>
             ) : selectedEntity === 'vehicles' ? (
@@ -214,33 +218,35 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                     <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
                  </div>
                  <div className="flex-1 overflow-auto p-4">
-                    <table className="w-full text-left text-sm border-collapse">
-                      <thead>
-                        <tr className="bg-gray-100 text-gray-600">
-                          <th className="p-3 font-bold border-b border-gray-200">车牌号码</th>
-                          <th className="p-3 font-bold border-b border-gray-200">车型</th>
-                          <th className="p-3 font-bold border-b border-gray-200">关系</th>
-                          <th className="p-3 font-bold border-b border-gray-200">风险等级</th>
-                          <th className="p-3 font-bold border-b border-gray-200 text-right">操作</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
-                          <td className="p-3 text-gray-800 font-mono font-bold">鄂A·88***</td>
-                          <td className="p-3 text-gray-600">轻型厢式货车</td>
-                          <td className="p-3 text-gray-600">本人名下</td>
-                          <td className="p-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded text-xs border border-red-200 font-bold">高风险</span></td>
-                          <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
-                        </tr>
-                        <tr className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
-                          <td className="p-3 text-gray-800 font-mono font-bold">鄂A·99***</td>
-                          <td className="p-3 text-gray-600">小型面包车</td>
-                          <td className="p-3 text-gray-600">亲属名下</td>
-                          <td className="p-3"><span className="bg-orange-50 text-orange-700 px-2 py-1 rounded text-xs border border-orange-200 font-bold">中风险</span></td>
-                          <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div className="rounded-md border border-gray-200 overflow-hidden shadow-sm">
+                      <table className="w-full text-left text-sm border-collapse bg-white">
+                        <thead className="bg-slate-50">
+                          <tr className="text-slate-500 text-xs uppercase tracking-wider">
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">车牌号码</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">车型</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">关系</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">风险等级</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200 text-right">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          <tr className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3 text-slate-800 font-mono font-bold">鄂A·88***</td>
+                            <td className="px-4 py-3 text-slate-600 font-medium">轻型厢式货车</td>
+                            <td className="px-4 py-3 text-slate-600">本人名下</td>
+                            <td className="px-4 py-3"><span className="bg-red-50 text-red-700 px-2 py-1 rounded-full text-[10px] border border-red-200 font-bold">高风险</span></td>
+                            <td className="px-4 py-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
+                          </tr>
+                          <tr className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3 text-slate-800 font-mono font-bold">鄂A·99***</td>
+                            <td className="px-4 py-3 text-slate-600 font-medium">小型面包车</td>
+                            <td className="px-4 py-3 text-slate-600">亲属名下</td>
+                            <td className="px-4 py-3"><span className="bg-orange-50 text-orange-700 px-2 py-1 rounded-full text-[10px] border border-orange-200 font-bold">中风险</span></td>
+                            <td className="px-4 py-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast('正在跳转该车辆轨迹追踪分析...')}>追踪轨迹</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                  </div>
               </div>
             ) : selectedEntity === 'violations' ? (
@@ -250,28 +256,30 @@ function PersonSearch({ tourAction }: { tourAction?: string }) {
                     <button className="text-xs text-white bg-[#004098] px-3 py-1.5 rounded font-bold hover:bg-blue-900" onClick={() => setSelectedEntity(null)}>返回全景图谱</button>
                  </div>
                  <div className="flex-1 overflow-auto p-4">
-                    <table className="w-full text-left text-sm border-collapse">
-                      <thead>
-                        <tr className="bg-gray-100 text-gray-600">
-                          <th className="p-3 font-bold border-b border-gray-200">决定书文号</th>
-                          <th className="p-3 font-bold border-b border-gray-200">处罚日期</th>
-                          <th className="p-3 font-bold border-b border-gray-200">处罚事由</th>
-                          <th className="p-3 font-bold border-b border-gray-200">处罚结果</th>
-                          <th className="p-3 font-bold border-b border-gray-200 text-right">操作</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[1,2,3,4,5].map(i => (
-                          <tr key={i} className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors">
-                            <td className="p-3 text-gray-800 font-mono font-bold">罚决字[2026]第00{i}号</td>
-                            <td className="p-3 text-gray-600">2026-0{i}-15</td>
-                            <td className="p-3 text-gray-600">无证运输烟草专卖品</td>
-                            <td className="p-3 text-red-600 font-bold">罚款 5,000 元</td>
-                            <td className="p-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取文书 [罚决字[2026]第00${i}号] 原件扫描件...`)}>查看文书</td>
+                    <div className="rounded-md border border-gray-200 overflow-hidden shadow-sm">
+                      <table className="w-full text-left text-sm border-collapse bg-white">
+                        <thead className="bg-slate-50">
+                          <tr className="text-slate-500 text-xs uppercase tracking-wider">
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">决定书文号</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">处罚日期</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">处罚事由</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200">处罚结果</th>
+                            <th className="px-4 py-3 font-bold border-b border-slate-200 text-right">操作</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {[1,2,3,4,5].map(i => (
+                            <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="px-4 py-3 text-slate-800 font-mono font-bold">罚决字[2026]第00{i}号</td>
+                              <td className="px-4 py-3 text-slate-600 font-mono text-xs">2026-0{i}-15</td>
+                              <td className="px-4 py-3 text-slate-600 font-medium">无证运输烟草专卖品</td>
+                              <td className="px-4 py-3 text-red-600 font-bold">罚款 5,000 元</td>
+                              <td className="px-4 py-3 text-right text-[#004098] cursor-pointer font-bold hover:underline" onClick={() => showToast(`正在提取文书 [罚决字[2026]第00${i}号] 原件扫描件...`)}>查看文书</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                  </div>
               </div>
             ) : selectedEntity === 'persons' ? (
@@ -511,17 +519,17 @@ function VehicleSearch({ tourAction }: { tourAction?: string }) {
                      <div className="p-4 flex gap-4 h-full">
                        {/* 案件列表 */}
                        <div className="flex-1 border border-gray-200 rounded overflow-hidden flex flex-col">
-                         <table className="w-full text-left text-sm border-collapse">
-                           <thead><tr className="bg-gray-100 text-gray-700 text-xs"><th className="p-3 font-bold border-b">案件编号</th><th className="p-3 font-bold border-b">立案时间</th><th className="p-3 font-bold border-b">性质</th></tr></thead>
-                           <tbody>
+                         <table className="w-full text-left text-sm border-collapse bg-white">
+                           <thead className="bg-slate-50 sticky top-0"><tr className="text-slate-500 text-[10px] uppercase tracking-wider"><th className="px-3 py-2 font-bold border-b border-slate-200">案件编号</th><th className="px-3 py-2 font-bold border-b border-slate-200">立案时间</th><th className="px-3 py-2 font-bold border-b border-slate-200">性质</th></tr></thead>
+                           <tbody className="divide-y divide-slate-100">
                              {[
                                { id: 'AJ-WH20261120', date: '2026-11-20', type: '无证运输', active: activeCaseDetails?.id === 'AJ-WH20261120' },
                                { id: 'AJ-WH20260401', date: '2026-04-01', type: '走私/假冒', active: activeCaseDetails?.id === 'AJ-WH20260401' }
                              ].map(item => (
-                               <tr key={item.id} className={cn("border-b border-gray-100 cursor-pointer transition-colors", item.active ? "bg-blue-50 border-l-4 border-l-[#004098]" : "hover:bg-gray-50 border-l-4 border-l-transparent")} onClick={() => setActiveCaseDetails(item)}>
-                                 <td className="p-3 font-mono font-bold text-gray-800">{item.id}</td>
-                                 <td className="p-3 text-gray-600 text-xs">{item.date}</td>
-                                 <td className="p-3"><span className="bg-red-50 text-red-600 text-[10px] px-2 py-0.5 border border-red-200 rounded">{item.type}</span></td>
+                               <tr key={item.id} className={cn("cursor-pointer transition-colors", item.active ? "bg-blue-50/50 relative after:absolute after:inset-y-0 after:left-0 after:w-1 after:bg-[#004098]" : "hover:bg-slate-50/80")} onClick={() => setActiveCaseDetails(item)}>
+                                 <td className="px-3 py-2 font-mono font-bold text-slate-800">{item.id}</td>
+                                 <td className="px-3 py-2 text-slate-600 font-mono text-[10px]">{item.date}</td>
+                                 <td className="px-3 py-2"><span className="bg-red-50 text-red-700 text-[10px] px-2 py-0.5 border border-red-200 rounded-full font-medium">{item.type}</span></td>
                                </tr>
                              ))}
                            </tbody>

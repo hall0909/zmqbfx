@@ -120,11 +120,11 @@ function PersonAnalysis({ tourAction, showToast }: { tourAction?: string, showTo
       <div className="h-[40%] flex gap-3 shrink-0">
          <div className="flex-1 glass-card p-3 flex flex-col relative">
            <div className="flex justify-between items-center mb-2"><h3 className="text-sm font-bold text-gray-700">户籍地分布热力图</h3><div className="text-gray-400"><Maximize2 className="w-3.5 h-3.5 cursor-pointer hover:text-[#004098]" onClick={() => showToast('全屏地图模式已开启')}/></div></div>
-           <div className="flex-1 bg-[#e0e5ec] rounded relative overflow-hidden flex items-center justify-center border border-gray-200">
-               <MapIcon className="absolute w-full h-full opacity-10 text-gray-500"/>
-               <div className="absolute w-6 h-6 bg-red-500 rounded-full blur-[10px] opacity-80" style={{top:'30%', left:'40%'}}></div>
-               <div className="absolute w-10 h-10 bg-orange-500 rounded-full blur-[15px] opacity-70" style={{top:'50%', left:'60%'}}></div>
-               <span className="relative z-10 text-xs font-bold text-white bg-black/50 px-2 py-0.5 rounded shadow">广东潮汕地区 (高度聚集)</span>
+           <div className="flex-1 bg-slate-100/50 rounded-lg relative overflow-hidden flex items-center justify-center border border-slate-200">
+               <MapIcon className="absolute w-3/4 h-3/4 opacity-5 text-slate-600"/>
+               <div className="absolute w-12 h-12 bg-red-500 rounded-full blur-[16px] opacity-70 animate-pulse" style={{top:'35%', left:'35%'}}></div>
+               <div className="absolute w-20 h-20 bg-orange-500 rounded-full blur-[24px] opacity-60" style={{top:'45%', left:'50%'}}></div>
+               <span className="relative z-10 text-xs font-medium text-slate-700 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-slate-200/60">📍 广东潮汕地区 (高度聚集)</span>
            </div>
          </div>
          <div className="flex-1 glass-card p-3 flex flex-col">
@@ -151,21 +151,38 @@ function PersonAnalysis({ tourAction, showToast }: { tourAction?: string, showTo
                <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs font-bold ml-2 flex items-center transition-colors shadow-sm" onClick={() => showToast('正在调用 AI 引擎进行趋势预判...')}><BrainCircuit className="w-3 h-3 mr-1" />趋势预测分析</button>
             </div>
          </div>
-         <div className="flex-1 overflow-auto">
+         <div className="flex-1 overflow-auto rounded-md border border-gray-200 bg-white shadow-sm">
            <table className="w-full text-left text-sm whitespace-nowrap">
-             <thead className="bg-gray-100 sticky top-0"><tr className="text-gray-600">
-               <th className="p-3 w-10 text-center"><input type="checkbox"/></th>
-               <th className="p-3 font-bold">姓名</th><th className="p-3 font-bold">身份证号</th><th className="p-3 font-bold">频次/类型</th><th className="p-3 font-bold">户籍/职业</th><th className="p-3 font-bold">时效状态</th>
-             </tr></thead>
-             <tbody>
+             <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+               <tr className="text-slate-500 text-xs uppercase tracking-wider">
+                 <th className="px-4 py-3 w-10 text-center border-b border-slate-200"><input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" /></th>
+                 <th className="px-4 py-3 font-bold border-b border-slate-200">姓名</th>
+                 <th className="px-4 py-3 font-bold border-b border-slate-200">身份证号</th>
+                 <th className="px-4 py-3 font-bold border-b border-slate-200">频次/类型</th>
+                 <th className="px-4 py-3 font-bold border-b border-slate-200">户籍/职业</th>
+                 <th className="px-4 py-3 font-bold border-b border-slate-200">时效状态</th>
+               </tr>
+             </thead>
+             <tbody className="divide-y divide-slate-100">
                {[1,2,3,4,5].map(i =>(
-                 <tr key={i} className="border-b hover:bg-blue-50 cursor-pointer" onClick={() => showToast(`正在加载 [李某某 ${i}] 的详细个人档案...`)}>
-                   <td className="p-3 text-center" onClick={e => e.stopPropagation()}><input type="checkbox"/></td>
-                   <td className="p-3 font-bold text-[#004098] hover:underline">李某某 {i}</td>
-                   <td className="p-3 font-mono text-gray-500">440304******{i}123</td>
-                   <td className="p-3"><div className="font-bold text-red-600">{10-i}次 <span className="bg-red-100 text-red-700 text-[10px] px-1 ml-1 rounded">售假</span></div></td>
-                   <td className="p-3"><div className="text-xs">湖北武汉</div><div className="text-[10px] text-gray-500">无业/物流司助</div></td>
-                   <td className="p-3"><div className="text-xs text-gray-700">首次: 2022-01</div><div className="text-xs text-red-500 font-bold">末次: 2026-03 (活跃)</div></td>
+                 <tr key={i} className="hover:bg-slate-50/80 cursor-pointer transition-colors" onClick={() => showToast(`正在加载 [李某某 ${i}] 的详细个人档案...`)}>
+                   <td className="px-4 py-3 text-center" onClick={e => e.stopPropagation()}><input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" /></td>
+                   <td className="px-4 py-3 font-bold text-[#004098] hover:underline">李某某 {i}</td>
+                   <td className="px-4 py-3 font-mono text-slate-500">440304******{i}123</td>
+                   <td className="px-4 py-3">
+                     <div className="flex items-center gap-2">
+                       <span className="font-bold text-red-600">{10-i}次</span>
+                       <span className="bg-red-100 text-red-700 text-[10px] px-2 py-0.5 rounded-full border border-red-200 font-medium">售假</span>
+                     </div>
+                   </td>
+                   <td className="px-4 py-3">
+                     <div className="text-xs text-slate-800 font-medium">湖北武汉</div>
+                     <div className="text-[10px] text-slate-500 mt-0.5">无业/物流司助</div>
+                   </td>
+                   <td className="px-4 py-3">
+                     <div className="text-xs text-slate-700">首次: 2022-01</div>
+                     <div className="text-xs text-red-600 font-bold mt-0.5">末次: 2026-03 (活跃)</div>
+                   </td>
                  </tr>
                ))}
              </tbody>
@@ -409,27 +426,27 @@ function RetailerRisk({ tourAction, showToast }: { tourAction?: string, showToas
 
            <div className="glass-card flex-1 overflow-auto border border-gray-200">
               <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-gray-100 sticky top-0 shadow-sm z-10"><tr className="text-gray-600 border-b border-gray-200">
-                  <th className="p-3 font-bold w-10"><input type="checkbox"/></th>
-                  <th className="p-3 font-bold">主体编码 / 名称</th>
-                  <th className="p-3 font-bold">AI风险评分</th>
-                  <th className="p-3 font-bold">动态风控标签</th>
-                  <th className="p-3 font-bold">预警状态</th>
-                  <th className="p-3 font-bold text-right">管理操作</th>
+                <thead className="bg-slate-50 sticky top-0 shadow-sm z-10"><tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-slate-200">
+                  <th className="px-4 py-3 font-bold w-10"><input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" /></th>
+                  <th className="px-4 py-3 font-bold">主体编码 / 名称</th>
+                  <th className="px-4 py-3 font-bold">AI风险评分</th>
+                  <th className="px-4 py-3 font-bold">动态风控标签</th>
+                  <th className="px-4 py-3 font-bold">预警状态</th>
+                  <th className="px-4 py-3 font-bold text-right">管理操作</th>
                 </tr></thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100">
                   {[
                     { id: '3601001001', name: '老张烟酒城', score: 95, tags: ['高危售假', '多次处罚'], alert: '紧急', c: 'red' },
                     { id: '3601002234', name: '万家便利网点', score: 82, tags: ['超量订货', '跨区疑点'], alert: '一般', c: 'orange' },
                     { id: '3601008891', name: '便民副食小休店', score: 25, tags: ['合规经营'], alert: "无", c: 'green' },
                   ].map((r,i)=>(
-                    <tr key={i} className="border-b border-gray-100 hover:bg-blue-50/50 cursor-pointer">
-                      <td className="p-3"><input type="checkbox"/></td>
-                      <td className="p-3"><div className="font-bold text-[#004098]">{r.name}</div><div className="text-xs font-mono text-gray-500 mt-0.5">{r.id}</div></td>
-                      <td className="p-3"><div className={cn("text-xl font-bold font-mono", r.c==='red'?'text-red-600':r.c==='orange'?'text-orange-600':'text-green-600')}>{r.score}</div></td>
-                      <td className="p-3 flex gap-1 items-center h-full pt-4">{r.tags.map(t=><span key={t} className="bg-gray-100 border border-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded">{t}</span>)}</td>
-                      <td className="p-3"><div className={cn("px-2 py-1 rounded text-xs font-bold inline-block border", r.c==='red'?'bg-red-50 text-red-600 border-red-200':r.c==='orange'?'bg-orange-50 text-orange-600 border-orange-200':'bg-gray-50 text-gray-400 border-gray-200')}>{r.alert}预警</div></td>
-                      <td className="p-3 text-right"><button className="text-[#004098] font-bold text-xs hover:underline bg-white border border-[#004098] px-3 py-1 rounded" onClick={() => showToast(`正在提取 [${r.name}] 的全景数字档案...`)}>详情及建档</button></td>
+                    <tr key={i} className="hover:bg-slate-50/80 cursor-pointer transition-colors">
+                      <td className="px-4 py-3"><input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" /></td>
+                      <td className="px-4 py-3"><div className="font-bold text-[#004098]">{r.name}</div><div className="text-xs font-mono text-slate-500 mt-0.5">{r.id}</div></td>
+                      <td className="px-4 py-3"><div className={cn("text-xl font-bold font-mono", r.c==='red'?'text-red-600':r.c==='orange'?'text-orange-600':'text-green-600')}>{r.score}</div></td>
+                      <td className="px-4 py-3 flex gap-1 items-center h-full pt-4">{r.tags.map(t=><span key={t} className="bg-slate-100 border border-slate-200 text-slate-600 text-[10px] px-2 py-0.5 rounded-full font-medium">{t}</span>)}</td>
+                      <td className="px-4 py-3"><div className={cn("px-2 py-1 rounded text-xs font-bold inline-block border", r.c==='red'?'bg-red-50 text-red-600 border-red-200':r.c==='orange'?'bg-orange-50 text-orange-600 border-orange-200':'bg-slate-50 text-slate-400 border-slate-200')}>{r.alert}预警</div></td>
+                      <td className="px-4 py-3 text-right"><button className="text-[#004098] font-bold text-xs hover:underline bg-white border border-[#004098] px-3 py-1 rounded transition-colors" onClick={() => showToast(`正在提取 [${r.name}] 的全景数字档案...`)}>详情及建档</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -619,12 +636,16 @@ function TrendPrediction({ tourAction, showToast }: { tourAction?: string, showT
                  <ResponsiveContainer width="100%" height="100%"><LineChart data={lineData}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="month" tick={{fontSize:11}}/><YAxis tick={{fontSize:11}}/><Tooltip/><Line type="monotone" dataKey="无证运输" stroke="#ef4444" strokeWidth={3}/><Line type="monotone" dataKey="走私" stroke="#004098" strokeWidth={2}/><Line type="monotone" dataKey="假烟" stroke="#22c55e" strokeWidth={2}/></LineChart></ResponsiveContainer>
               </div>
               <div className="flex gap-4">
-                 <div className="flex-1 bg-white p-3 rounded shadow-sm border border-gray-200 flex flex-col items-center justify-center relative overflow-hidden">
-                    <div className="absolute top-2 left-2 text-xs font-bold text-gray-600 z-10">区域危情散布预测</div>
-                    {/* Mock Heatmap image concept */}
-                    <div className="w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-500/40 via-orange-300/20 to-gray-100 flex items-center justify-center">
-                       <MapIcon className="w-16 h-16 text-gray-300 opacity-50"/>
-                       <div className="absolute bg-white/90 text-red-700 font-bold px-2 py-0.5 rounded text-[10px] shadow border border-red-200">沿海码头区极高危</div>
+                 <div className="flex-1 bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex flex-col relative overflow-hidden">
+                    <div className="text-xs font-bold text-slate-700 z-10 mb-2">区域危情散布预测</div>
+                    <div className="flex-1 w-full bg-slate-50/80 rounded-md relative overflow-hidden flex items-center justify-center border border-slate-100">
+                       <MapIcon className="absolute w-3/4 h-3/4 opacity-5 text-slate-600"/>
+                       <div className="absolute w-16 h-16 bg-red-600 rounded-full blur-[20px] opacity-70 animate-pulse" style={{top:'30%', right:'20%'}}></div>
+                       <div className="absolute w-24 h-24 bg-orange-500 rounded-full blur-[24px] opacity-50" style={{bottom:'15%', left:'25%'}}></div>
+                       <div className="absolute w-12 h-12 bg-purple-600 rounded-full blur-[16px] opacity-60 animate-pulse" style={{top:'25%', left:'45%'}}></div>
+                       <div className="relative z-10 bg-white/90 backdrop-blur-sm text-red-700 font-bold px-3 py-1.5 rounded-full text-[11px] shadow-sm border border-red-200/60 flex items-center">
+                         <ShieldAlert className="w-3.5 h-3.5 mr-1 text-red-600"/> 沿海码头区极高危
+                       </div>
                     </div>
                  </div>
                  <div className="flex-1 bg-white p-3 rounded shadow-sm border border-gray-200 flex flex-col">

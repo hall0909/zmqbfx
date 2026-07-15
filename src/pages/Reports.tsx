@@ -93,51 +93,53 @@ export default function Reports() {
           <h3 className="text-xs font-bold text-gray-700">自动化报告文件台账</h3>
         </div>
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-white border-b border-gray-200 text-gray-500 sticky top-0 z-10 shadow-sm">
-                <th className="px-4 py-2.5 font-bold">报告名称</th>
-                <th className="px-4 py-2.5 font-bold w-32">任务类型</th>
-                <th className="px-4 py-2.5 font-bold w-40">执行时间</th>
-                <th className="px-4 py-2.5 font-bold w-32">任务状态</th>
-                <th className="px-4 py-2.5 font-bold text-right w-48">流水线操作</th>
+          <table className="w-full text-left text-sm border-collapse bg-white">
+            <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+              <tr className="text-slate-500 text-xs uppercase tracking-wider">
+                <th className="px-4 py-3 font-bold border-b border-slate-200">报告名称</th>
+                <th className="px-4 py-3 font-bold w-32 border-b border-slate-200">任务类型</th>
+                <th className="px-4 py-3 font-bold w-40 border-b border-slate-200">执行时间</th>
+                <th className="px-4 py-3 font-bold w-32 border-b border-slate-200">任务状态</th>
+                <th className="px-4 py-3 font-bold text-right w-48 border-b border-slate-200">流水线操作</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {reports.map((report) => (
-                <tr key={report.id} className="border-b border-gray-100 last:border-0 hover:bg-blue-50/50 transition-colors">
-                  <td className="px-4 py-3 font-bold flex items-center">
-                    <FileText className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className={cn(report.status === 'generating' ? "text-purple-600" : "text-gray-800")}>{report.title}</span>
+                <tr key={report.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-4 py-4 font-bold flex items-center">
+                    <FileText className="w-4 h-4 text-slate-400 mr-2" />
+                    <span className={cn(report.status === 'generating' ? "text-purple-600" : "text-slate-800")}>{report.title}</span>
                     {report.id === reports[0]?.id && report.status === 'completed' && <Sparkles className="w-3 h-3 ml-2 text-purple-500" />}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{report.type}</td>
-                  <td className="px-4 py-3 text-gray-500 font-mono text-[10px] flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {report.generateTime}
+                  <td className="px-4 py-4 text-slate-600 font-medium">{report.type}</td>
+                  <td className="px-4 py-4 text-slate-500 font-mono text-xs">
+                    <div className="flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {report.generateTime}
+                    </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-4">
                     {report.status === 'completed' ? (
-                      <span className="flex items-center text-green-700 bg-green-50 px-2 py-0.5 rounded w-max border border-green-200 text-[10px] text-center font-bold">
+                      <span className="flex items-center text-green-700 bg-green-50 px-2 py-0.5 rounded-full w-max border border-green-200 text-[10px] text-center font-bold">
                         <CheckCircle2 className="w-3 h-3 mr-1" /> 执行成功
                       </span>
                     ) : (
-                      <span className="flex items-center text-purple-700 bg-purple-50 px-2 py-0.5 rounded w-max border border-purple-200 text-[10px] text-center font-bold ai-pulse">
+                      <span className="flex items-center text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full w-max border border-purple-200 text-[10px] text-center font-bold ai-pulse">
                         <Loader2 className="w-3 h-3 mr-1 animate-spin" /> AI采编中
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right space-x-3">
+                  <td className="px-4 py-4 text-right space-x-3">
                     <button 
                       disabled={report.status !== 'completed'}
-                      className="text-blue-600 hover:underline hover:text-blue-800 font-bold disabled:opacity-30 disabled:hover:no-underline text-[10px]"
+                      className="text-blue-600 hover:underline hover:text-blue-800 font-bold disabled:opacity-30 disabled:hover:no-underline text-[10px] transition-colors"
                       onClick={() => showToast(`正在提取并在线预览：${report.title}`)}
                     >
                       在线预览
                     </button>
                     <button 
                       disabled={report.status !== 'completed'}
-                      className="text-gray-600 hover:text-gray-800 font-bold items-center justify-end w-full md:w-auto inline-flex disabled:opacity-30 disabled:hover:no-underline text-[10px] px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                      className="text-slate-600 hover:text-slate-800 font-bold items-center justify-end w-full md:w-auto inline-flex disabled:opacity-30 disabled:hover:no-underline text-[10px] px-3 py-1.5 border border-slate-200 rounded transition-colors hover:bg-slate-50 shadow-sm"
                       onClick={() => showToast(`正在生成 ${report.title} 的 PDF 文件并加入下载队列...`)}
                     >
                       <Download className="w-3 h-3 mr-1" /> 导出PDF
